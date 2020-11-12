@@ -29,20 +29,19 @@ defineModule(sim, list(
                           "This is generally intended for data-type modules,",
                           "where stochasticity and time are not relevant."))
   ),
-  inputObjects = bind_rows(
+  inputObjects = bindrows(
     expectsInput(objectName = "sqlDir", objectClass = "character", desc = NA, sourceURL = NA),
     expectsInput(objectName = "dbPath", objectClass = "character", desc = NA, sourceURL = NA)
   ),
-  outputObjects = bind_rows(
-    createsOutput(objectName = NA, objectClass = NA, desc = NA),
-    createsOutput(objectName = "pooldef", objectClass = "character",
-                  desc = "Vector of names (characters) for each of the carbon pools, with `Input` being the first one"),
-    createsOutput(objectName = "PoolCount", objectClass = "numeric",
-                  desc = "Length of pooldef"),
+  outputObjects = bindrows(
     createsOutput(objectName = "cbmData", objectClass = "dataset",
                   desc = NA),
     createsOutput(objectName = "decayRates", objectClass = "matrix",
                   desc = "decay rates per spatial unit?"),
+    createsOutput(objectName = "PoolCount", objectClass = "numeric",
+                  desc = "Length of pooldef"),
+    createsOutput(objectName = "pooldef", objectClass = "character",
+                  desc = "Vector of names (characters) for each of the carbon pools, with `Input` being the first one"),
     createsOutput(objectName = "processes", objectClass = "list",
                   desc = "decay mixing turnover and disturbances")
   )
