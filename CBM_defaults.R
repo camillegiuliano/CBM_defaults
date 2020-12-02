@@ -161,6 +161,14 @@ Init <- function(sim) {
     bioTurnover = matrixHash(computeBioTurnoverMatrices(sim$cbmData@turnoverRates, sim$PoolCount)),
     disturbanceMatrices = matrixHash(loadDisturbanceMatrixIds(sim$cbmData@disturbanceMatrixValues, sim$cbmData@pools))
   )
+## TODO: check if this assertion works
+  propTransfer <- NULL
+  for(i in setdiff(names(spadesCBMout$processes), "disturbanceMatrices")) {
+    makeDT <- matrixDT(matricesIn = processes[[i]], indicesIn = names(processes[[i]]))
+    propCheck <- checkProp(makeDT)
+    if(!identical(propCheck$noLoss,c(1,1)))
+      stop("Transfer matrices have proportions different then 1: carbon is disappearing or appearing")
+  }
 
   # ! ----- STOP EDITING ----- ! #
 
