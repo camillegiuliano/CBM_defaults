@@ -6,14 +6,13 @@ defineModule(sim, list(
     person("Celine", "Boisvenue", email = "Celine.Boisvenue@canada.ca", role = c("aut", "cre"))
   ),
   childModules = character(0),
-  version = list(SpaDES.core = "1.0.2", CBM_defaults = "0.0.1"),
+  version = list(CBM_defaults = "0.0.1"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "CBM_defaults.Rmd"),
-  reqdPkgs = list("RSQLite", "data.table",
-                  "CBMutils"), ## TODO: use PredictiveEcology/CBMutils
+  reqdPkgs = list("RSQLite", "data.table", "PredictiveEcology/CBMutils (>= 0.0.6)"),
   parameters = rbind(
     # defineParameter("paramName", "paramClass", value, min, max, "parameter description"),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA,
