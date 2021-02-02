@@ -86,44 +86,7 @@ doEvent.CBM_defaults <- function(sim, eventTime, eventType, debug = FALSE) {
 ### template initialization
 Init <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
-  sim$pooldef <- c(
-    "Input",
-    "SoftwoodMerch",
-    "SoftwoodFoliage",
-    "SoftwoodOther",
-    "SoftwoodCoarseRoots",
-    "SoftwoodFineRoots",
-    "HardwoodMerch",
-    "HardwoodFoliage",
-    "HardwoodOther",
-    "HardwoodCoarseRoots",
-    "HardwoodFineRoots",
-    "AboveGroundVeryFastSoil",
-    "BelowGroundVeryFastSoil",
-    "AboveGroundFastSoil",
-    "BelowGroundFastSoil",
-    "MediumSoil",
-    "AboveGroundSlowSoil",
-    "BelowGroundSlowSoil",
-    "SoftwoodStemSnag",
-    "SoftwoodBranchSnag",
-    "HardwoodStemSnag",
-    "HardwoodBranchSnag",
-    "CO2",
-    "CH4",
-    "CO",
-    "Products"
-  )
-
-  # TODO: These objects currently are required to be in the .GlobalEnv -- ## TODO: no longer true?
-  #   due to cpp code in RCBMGrowthIncrements.cpp. This should be
-  #   changed in the cpp and also here so it is in the sim
-  for (i in 1:length(sim$pooldef)) {
-    assign(sim$pooldef[i], i, envir = .GlobalEnv) # ?.globals
-  }
-
-  # Scott's version
-  # assign("PoolCount", length(sim$pooldef), envir = envir(sim))#?.globals
+  sim$pooldef <- CBMutils::.poolnames
   sim$PoolCount <- length(sim$pooldef)
 
   # step 1 read the cbm_defaults parameter data
