@@ -85,7 +85,7 @@ doEvent.CBM_defaults <- function(sim, eventTime, eventType, debug = FALSE) {
 ### template initialization
 Init <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
-  sim$pooldef <- CBMutils::.poolnames
+  sim$pooldef <- CBMutils::.pooldef
   sim$PoolCount <- length(sim$pooldef)
 
   # step 1 read the cbm_defaults parameter data
