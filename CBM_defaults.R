@@ -125,10 +125,10 @@ Init <- function(sim) {
   )
 ## assertion to check if annual process proportional matrices all have a sumed value of 1 per row.
   propTransfer <- NULL
-  for(i in setdiff(names(sim$processes), "disturbanceMatrices")) {
+  for (i in setdiff(names(sim$processes), "disturbanceMatrices")) {
     makeDT <- matrixDT(matricesIn = sim$processes[[i]], indicesIn = names(sim$processes[[i]]))
     propCheck <- checkProp(makeDT)
-    if(sum(propCheck$noLoss) != length(propCheck$noLoss))
+    if (sum(propCheck$noLoss) != length(propCheck$noLoss))
       stop("Transfer matrices have proportions different then 1: carbon is disappearing or appearing")
   }
 
