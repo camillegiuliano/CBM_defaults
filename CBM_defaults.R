@@ -12,7 +12,8 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "CBM_defaults.Rmd"),
-  reqdPkgs = list("RSQLite", "data.table", "PredictiveEcology/CBMutils (>= 0.0.6)"),
+  reqdPkgs = list("RSQLite", "data.table",
+                  "PredictiveEcology/CBMutils@development"),
   parameters = rbind(
     # defineParameter("paramName", "paramClass", value, min, max, "parameter description"),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA,
