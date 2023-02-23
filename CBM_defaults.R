@@ -1,9 +1,9 @@
 defineModule(sim, list(
   name = "CBM_defaults",
-  description = "Reads in all the default values for CBM-CFS3 for Canada", #"insert module description here",
-  keywords = c("CBM-CFS3", "forest carbon","Canada parameters"), # c("insert key words here"),
+  description = "Reads in all the default values for CBM-CFS3 for Canada",
+  keywords = c("CBM-CFS3", "forest carbon","Canada parameters"),
   authors = c(
-    person("Celine", "Boisvenue", email = "Celine.Boisvenue@canada.ca", role = c("aut", "cre"))
+    person("Celine", "Boisvenue", email = "celine.boisvenue@nrcan-rncan.gc.ca", role = c("aut", "cre"))
   ),
   childModules = character(0),
   version = list(CBM_defaults = "0.0.1"),
