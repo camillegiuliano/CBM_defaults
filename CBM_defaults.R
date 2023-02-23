@@ -159,10 +159,14 @@ plot <- function(sim) {
 }
 
 .inputObjects <- function(sim) {
+  cacheTags <- c(currentModule(sim), "function:.inputObjects")
+  dPath <- asPath(getOption("reproducible.destinationPath", dataPath(sim)), 1)
+
   # ! ----- EDIT BELOW ----- ! #
   if (!suppliedElsewhere(sim$sqlDir)) {
-    sim$sqlDir <- file.path(modulePath(sim), "CBM_defaults", "data", "cbm_defaults")
+    sim$sqlDir <- file.path(dPath, "cbm_defaults")
   }
+
   if (!suppliedElsewhere(sim$dbPath)) {
     sim$dbPath <- file.path(sim$sqlDir, "cbm_defaults.db")
   }
