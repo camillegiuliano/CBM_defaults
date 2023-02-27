@@ -163,6 +163,11 @@ plot <- function(sim) {
   dPath <- asPath(getOption("reproducible.destinationPath", dataPath(sim)), 1)
   message(currentModule(sim), ": using dataPath '", dPath, "'.")
 
+  if (dPath != dataPath(sim)) {
+    checkPath(file.path(dPath, "cbm_defaults"), create = TRUE)
+    file.copy(file.path(dataPath(sim), "cbm_defaults"), dPath, recursive = TRUE, overwrite = TRUE)
+  }
+
   # ! ----- EDIT BELOW ----- ! #
   if (!suppliedElsewhere(sim$sqlDir)) {
     sim$sqlDir <- file.path(dPath, "cbm_defaults")
