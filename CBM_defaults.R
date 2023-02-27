@@ -35,7 +35,7 @@ defineModule(sim, list(
   ),
   outputObjects = bindrows(
     createsOutput(objectName = "cbmData", objectClass = "dataset",
-                  desc = NA),
+                  desc = NA), ## TODO
     createsOutput(objectName = "decayRates", objectClass = "matrix",
                   desc = "decay rates per spatial unit?"),
     createsOutput(objectName = "PoolCount", objectClass = "numeric",
