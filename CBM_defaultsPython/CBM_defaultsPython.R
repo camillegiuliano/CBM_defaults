@@ -2,15 +2,18 @@ defineModule(sim, list(
   name = "CBM_defaultsPython",
   description = "Reads in all the default values for CBM-CFS3 for Canada",
   keywords = "",
-  authors = ,
+  authors = c(
+    person("Celine", "Boisvenue", email = "celine.boisvenue@nrcan-rncan.gc.ca", role = c("aut", "cre"))
+  ),
+  childModules = character(0),
   version = list(CBM_defaultsPython = "0.1"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.md", "CBM_defaults.Rmd"),
-  reqdPkgs = list("SpaDES.core", "RSQLite", "data.table",
-                  "CBMutils" ##TODO: get this message currently: CBMutils not on CRAN; checking CRAN archives ...
+  reqdPkgs = list("RSQLite", "data.table"
+                  ##TODO: get this message currently when adding CBMUtils: CBMutils not on CRAN; checking CRAN archives ...
                   ),
 
   parameters = bindrows(
