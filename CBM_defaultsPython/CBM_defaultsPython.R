@@ -93,7 +93,8 @@ Init <- function(sim) {
   species <- as.matrix(dbGetQuery(archiveIndex, "SELECT * FROM species"))
   speciestr <- as.matrix(dbGetQuery(archiveIndex, "SELECT * FROM species_tr"))
 
-  sim$cbmData <- new("dataset", matrices2, matrices3, matrices4, species, speciestr)
+  sim$cbmData <- new("dataset",
+                     matrices2, matrices3, matrices4, species, speciestr)
 
   ##TODO: figure out if sim$decayRates and sim#processes is still needed here (I assume yes)
 
