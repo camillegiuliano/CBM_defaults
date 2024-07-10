@@ -9,7 +9,9 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.md", "CBM_defaults.Rmd"),
-  reqdPkgs = list("SpaDES.core (>= 2.1.5.9000)", "RSQLite", "data.table" "CBMutils"),
+  reqdPkgs = list("SpaDES.core", "RSQLite", "data.table",
+                  "CBMutils" ##TODO: get this message currently: CBMutils not on CRAN; checking CRAN archives ...
+                  ),
 
   parameters = bindrows(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description"),
@@ -112,10 +114,5 @@ Init <- function(sim) {
 
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
-}
-
-ggplotFn <- function(data, ...) {
-  ggplot2::ggplot(data, ggplot2::aes(TheSample)) +
-    ggplot2::geom_histogram(...)
 }
 
