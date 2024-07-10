@@ -87,13 +87,13 @@ Init <- function(sim) {
 
   #create cbmData
   ##TODO:what else do I need from archiveIndex, the same as what is in current cbm_defaults?
-  sim$cbmData <- new("dataset",
-                     matrices2 = dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"),
-                     matrices3 = dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"),
-                     matrices4 = dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_value"),
-                     species = dbGetQuery(archiveIndex, "SELECT * FROM species"),
-                     species_tr = dbGetQuery(archiveIndex, "SELECT * FROM species_tr")
-  )
+  matrices2 <- as.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))
+  matrices3 <- as.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"))
+  matrices4 <- as.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_value"))
+  species <- as.matrix(dbGetQuery(archiveIndex, "SELECT * FROM species"))
+  speciestr <- as.matrix(dbGetQuery(archiveIndex, "SELECT * FROM species_tr"))
+
+  sim$cbmData <- new("dataset", matrices2, matrices3, matrices4, species, speciestr)
 
   ##TODO: figure out if sim$decayRates and sim#processes is still needed here (I assume yes)
 
