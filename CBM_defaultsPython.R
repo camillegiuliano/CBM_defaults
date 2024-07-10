@@ -4,16 +4,15 @@ defineModule(sim, list(
   keywords = "",
   authors = ,
   version = list(CBM_defaultsPython = "0.1"),
+  spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "CBM_defaults.Rmd"),
-  reqdPkgs = list("SpaDES.core (>= 2.1.5.9000)", "ggplot2", "RSQLite", "CBMutils"),
+  reqdPkgs = list("SpaDES.core (>= 2.1.5.9000)", "RSQLite", "data.table" "CBMutils"),
 
   parameters = bindrows(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description"),
-    defineParameter(".plots", "character", "screen", NA, NA,
-                    "Used by Plots function, which can be optionally used here"),
     defineParameter(".plotInitialTime", "numeric", start(sim), NA, NA,
                     "Describes the simulation time at which the first plot event should occur."),
     defineParameter(".plotInterval", "numeric", NA, NA, NA,
@@ -22,103 +21,94 @@ defineModule(sim, list(
                     "Describes the simulation time at which the first save event should occur."),
     defineParameter(".saveInterval", "numeric", NA, NA, NA,
                     "This describes the simulation time interval between save events."),
-    defineParameter(".studyAreaName", "character", NA, NA, NA,
-                    "Human-readable name for the study area used - e.g., a hash of the study",
-                          "area obtained using `reproducible::studyAreaName()`"),
-    ## .seed is optional: `list('init' = 123)` will `set.seed(123)` for the `init` event only.
-    defineParameter(".seed", "list", list(), NA, NA,
-                    "Named list of seeds to use for each event (names)."),
     defineParameter(".useCache", "logical", FALSE, NA, NA,
-                    "Should caching of events or module be used?")
+                    "Should caching of events or module be used?") ##TODO: keep if caching
   ),
 
-  inputObjects = bindrows(
-    #expectsInput("objectName", "objectClass", "input object description", sourceURL, ...),
-    expectsInput(objectName = NA, objectClass = NA, desc = NA, sourceURL = NA)
+  inputObjects = bindrows( ##TODO: find inputs (so far just dbPath)
+    expectsInput(objectName = "dbPath", objectClass = "character", desc = NA, sourceURL = NA),
+
   ),
-  outputObjects = bindrows(
+  outputObjects = bindrows( ##TODO: find outputs, cbmdata, disturbance data, species data
     #createsOutput("objectName", "objectClass", "output object description", ...),
-    createsOutput(objectName = NA, objectClass = NA, desc = NA)
+    createsOutput(objectName = "cbmData", objectClass = "dataset", desc = NA),
+    createsOutput(objectName = "pooldef", objectClass = "character", desc = NA),
+    createsOutput(objectName = "poolCount", objectClass = "numeric", desc = NA),
+    createsOutput(objectName = "", objectClass = "", desc = NA), ##TODO: add missing outputs
   )
 ))
 
-
+##TODO this is copied from current CBM_defaults, unsure if that needs to change? it's still only 1 event
 doEvent.CBM_defaultsPython.init <- function(sim, eventTime, eventType, priority) {
+  switch(
+    eventType,
+    init = {
+      ### check for more detailed object dependencies:
+      ### (use `checkObject` or similar)
 
-  return(sim)
+      # do stuff for this event
+      sim <- Init(sim)
+
+      # schedule future event(s)
+      sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "CBM_defaults", "plot")
+      sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, "CBM_defaults", "save")
+    },
+    # plot = {
+    #
+    # },
+    # save = {
+    #
+    # },
+    warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
+                  "' in module '", current(sim)[1, "moduleName", with = FALSE], "'",
+                  sep = ""
+    ))
+  )
+  return(invisible(sim))
 }
+
+
 
 ### template initialization
 Init <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
+  ##TODO: pooldef and PoolCount are copied from current version of CBM_defaults, not sure if still needed now.
+  sim$pooldef <- CBMutils::.pooldef
+  sim$PoolCount <- length(sim$pooldef)
+
+  #extract data from database
+  archiveIndex <- dbConnect(dbDriver("SQLite"), dbPath)
+  dbListTables(archiveIndex)
+
+  #create cbmData
+  ##TODO:what else do I need from archiveIndex, the same as what is in current cbm_defaults?
+  sim$cbmData <- new("dataset",
+                     matrices2 = dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"),
+                     matrices3 = dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"),
+                     matrices4 = dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_value"),
+                     species = dbGetQuery(archiveIndex, "SELECT * FROM species"),
+                     species_tr = dbGetQuery(archiveIndex, "SELECT * FROM species_tr")
+  )
+
+  ##TODO: figure out if sim$decayRates and sim#processes is still needed here (I assume yes)
 
   # ! ----- STOP EDITING ----- ! #
 
-  return(invisible(sim))
-}
-### template for save events
-Save <- function(sim) {
-  # ! ----- EDIT BELOW ----- ! #
-  # do stuff for this event
-  sim <- saveFiles(sim)
-
-  # ! ----- STOP EDITING ----- ! #
-  return(invisible(sim))
-}
-
-### template for plot events
-plotFun <- function(sim) {
-  # ! ----- EDIT BELOW ----- ! #
-  # do stuff for this event
-  sampleData <- data.frame("TheSample" = sample(1:10, replace = TRUE))
-  Plots(sampleData, fn = ggplotFn) # needs ggplot2
-
-  # ! ----- STOP EDITING ----- ! #
-  return(invisible(sim))
-}
-
-### template for your event1
-Event1 <- function(sim) {
-  # ! ----- EDIT BELOW ----- ! #
-  # THE NEXT TWO LINES ARE FOR DUMMY UNIT TESTS; CHANGE OR DELETE THEM.
-  # sim$event1Test1 <- " this is test for event 1. " # for dummy unit test
-  # sim$event1Test2 <- 999 # for dummy unit test
-
-  # ! ----- STOP EDITING ----- ! #
-  return(invisible(sim))
-}
-
-### template for your event2
-Event2 <- function(sim) {
-  # ! ----- EDIT BELOW ----- ! #
-  # THE NEXT TWO LINES ARE FOR DUMMY UNIT TESTS; CHANGE OR DELETE THEM.
-  # sim$event2Test1 <- " this is test for event 2. " # for dummy unit test
-  # sim$event2Test2 <- 777  # for dummy unit test
-
-  # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
 
 .inputObjects <- function(sim) {
-  # Any code written here will be run during the simInit for the purpose of creating
-  # any objects required by this module and identified in the inputObjects element of defineModule.
-  # This is useful if there is something required before simulation to produce the module
-  # object dependencies, including such things as downloading default datasets, e.g.,
-  # downloadData("LCC2005", modulePath(sim)).
-  # Nothing should be created here that does not create a named object in inputObjects.
-  # Any other initiation procedures should be put in "init" eventType of the doEvent function.
-  # Note: the module developer can check if an object is 'suppliedElsewhere' to
-  # selectively skip unnecessary steps because the user has provided those inputObjects in the
-  # simInit call, or another module will supply or has supplied it. e.g.,
-  # if (!suppliedElsewhere('defaultColor', sim)) {
-  #   sim$map <- Cache(prepInputs, extractURL('map')) # download, extract, load file from url in sourceURL
-  # }
 
   #cacheTags <- c(currentModule(sim), "function:.inputObjects") ## uncomment this if Cache is being used
   dPath <- asPath(getOption("reproducible.destinationPath", dataPath(sim)), 1)
-  message(currentModule(sim), ": using dataPath '", dPath, "'.")
+  message(currentModule(sim), ": using dataPath '", dPath, "'.") ##TODO: figure out what this does/means, and what needs to be changed for this module
 
   # ! ----- EDIT BELOW ----- ! #
+
+  if (!suppliedElsewhere(sim$dbPath)) {
+    sim$dbPath <- "C:/Camille/GitHub/spadesCBM/defaultDB/cbm_defaults_v1.2.8340.362.db"
+    ##TODO: this needs to not be a local file eventually
+  }
 
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
