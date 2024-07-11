@@ -44,7 +44,7 @@ defineModule(sim, list(
 ))
 
 ##TODO this is copied from current CBM_defaults, unsure if that needs to change? it's still only 1 event
-doEvent.CBM_defaultsPython.init <- function(sim, eventTime, eventType, priority) {
+doEvent.CBM_defaultsPython <- function(sim, eventTime, eventType, priority) {
   switch(
     eventType,
     init = {
@@ -55,8 +55,8 @@ doEvent.CBM_defaultsPython.init <- function(sim, eventTime, eventType, priority)
       sim <- Init(sim)
 
       # schedule future event(s)
-      sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "CBM_defaults", "plot")
-      sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, "CBM_defaults", "save")
+      sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "CBM_defaultsPython", "plot")
+      sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, "CBM_defaultsPython", "save")
     },
     # plot = {
     #
@@ -82,7 +82,7 @@ Init <- function(sim) {
   sim$PoolCount <- length(sim$pooldef)
 
   #extract data from database
-  archiveIndex <- dbConnect(dbDriver("SQLite"), dbPath)
+  archiveIndex <- dbConnect(dbDriver("SQLite"), sim$dbPath)
   dbListTables(archiveIndex)
 
   #create cbmData
@@ -93,8 +93,8 @@ Init <- function(sim) {
   species <- as.matrix(dbGetQuery(archiveIndex, "SELECT * FROM species"))
   speciestr <- as.matrix(dbGetQuery(archiveIndex, "SELECT * FROM species_tr"))
 
-  sim$cbmData <- new("dataset",
-                     matrices2, matrices3, matrices4, species, speciestr)
+  # sim$cbmData <- new("dataset",
+  #                    matrices2, matrices3, matrices4, species, speciestr)
 
   ##TODO: figure out if sim$decayRates and sim#processes is still needed here (I assume yes)
 
