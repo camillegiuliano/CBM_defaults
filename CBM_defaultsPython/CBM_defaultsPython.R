@@ -16,7 +16,7 @@ defineModule(sim, list(
                   ##TODO: get this message currently when adding CBMUtils: CBMutils not on CRAN; checking CRAN archives ...
                   ),
 
-  parameters = bindrows(
+  parameters = bindrows( ##TODO: these are all default SpaDES parameters, not sure if all are needed here
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description"),
     defineParameter(".plotInitialTime", "numeric", start(sim), NA, NA,
                     "Describes the simulation time at which the first plot event should occur."),
@@ -85,16 +85,20 @@ Init <- function(sim) {
   archiveIndex <- dbConnect(dbDriver("SQLite"), sim$dbPath)
   dbListTables(archiveIndex)
 
+  #extract matrices
+  spatialUnitIds <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM spatial_unit")) ##TODO: confirm whether this is the right file or not
+  disturbanceMatrix <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix"))
+  disturbanceMatrixAssociation <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))
+  disturbanceMatrixTr <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr")) ##TODO: causes new() to give this error:   invalid name for slot of class “dataset”: disturbanceMatrixTr
+  disturbanceMatrixValue <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_value")) ##TODO: causes new() to give this error:   invalid name for slot of class “dataset”: disturbanceMatrixTr
+
   #create cbmData
   ##TODO:what else do I need from archiveIndex, the same as what is in current cbm_defaults?
-  matrices2 <- as.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))
-  matrices3 <- as.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"))
-  matrices4 <- as.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_value"))
-  species <- as.matrix(dbGetQuery(archiveIndex, "SELECT * FROM species"))
-  speciestr <- as.matrix(dbGetQuery(archiveIndex, "SELECT * FROM species_tr"))
-
-  # sim$cbmData <- new("dataset",
-  #                    matrices2, matrices3, matrices4, species, speciestr)
+  sim$cbmData <- new("dataset",
+                     spatialUnitIds = spatialUnitIds,
+                     disturbanceMatrix = disturbanceMatrix,
+                     disturbanceMatrixAssociation = disturbanceMatrixAssociation
+                     )
 
   ##TODO: figure out if sim$decayRates and sim#processes is still needed here (I assume yes)
 
@@ -113,7 +117,7 @@ Init <- function(sim) {
 
   if (!suppliedElsewhere(sim$dbPath)) {
     sim$dbPath <- "C:/Camille/GitHub/spadesCBM/defaultDB/cbm_defaults_v1.2.8340.362.db"
-    ##TODO: this needs to not be a local file eventually
+    ##TODO: this eventually needs to not lead to a locally stored file
   }
 
   # ! ----- STOP EDITING ----- ! #
