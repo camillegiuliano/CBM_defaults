@@ -77,30 +77,29 @@ doEvent.CBM_defaultsPython <- function(sim, eventTime, eventType, priority) {
 ### template initialization
 Init <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
-  ##TODO: pooldef and PoolCount are copied from current version of CBM_defaults, not sure if still needed now.
-  sim$pooldef <- CBMutils::.pooldef
-  sim$PoolCount <- length(sim$pooldef)
-
   #extract data from database
   archiveIndex <- dbConnect(dbDriver("SQLite"), sim$dbPath)
   dbListTables(archiveIndex)
 
   #extract matrices
   spatialUnitIds <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM spatial_unit")) ##TODO: confirm whether this is the right file or not
+  adminBoundary <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM admin_boundary"))
+
   disturbanceMatrix <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix"))
   disturbanceMatrixAssociation <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))
-  disturbanceMatrixTr <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr")) ##TODO: causes new() to give this error:   invalid name for slot of class “dataset”: disturbanceMatrixTr
-  disturbanceMatrixValue <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_value")) ##TODO: causes new() to give this error:   invalid name for slot of class “dataset”: disturbanceMatrixTr
+  disturbanceMatrixTr <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"))
+  disturbanceMatrixValue <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_value"))
+  disturbanceType <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type"))
+  disturbanceTypeTr <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type_tr"))
 
-  #create cbmData
-  ##TODO:what else do I need from archiveIndex, the same as what is in current cbm_defaults?
-  sim$cbmData <- new("dataset",
-                     spatialUnitIds = spatialUnitIds,
-                     disturbanceMatrix = disturbanceMatrix,
-                     disturbanceMatrixAssociation = disturbanceMatrixAssociation
-                     )
+  ecoBoundary <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM eco_boundary"))
+  ecoBoundaryTr <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM eco_boundary_tr"))
 
-  ##TODO: figure out if sim$decayRates and sim#processes is still needed here (I assume yes)
+  species <- dbGetQuery(archiveIndex, "SELECT * FROM species")
+  species_tr <- dbGetQuery(archiveIndex, "SELECT * FROM species_tr")
+
+
+##TODO: eventually figure what needs to be extracted from database
 
   # ! ----- STOP EDITING ----- ! #
 
