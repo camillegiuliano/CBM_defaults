@@ -79,18 +79,18 @@ Init <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
   #extract data from database
   archiveIndex <- dbConnect(dbDriver("SQLite"), sim$dbPath)
-  dbListTables(archiveIndex)
 
   #extract matrices
-  spatialUnitIds <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM spatial_unit")) ##TODO: confirm whether this is the right file or not
-  adminBoundary <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM admin_boundary"))
+  spatialUnitIds <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM spatial_unit")) ##TODO: confirm whether this is the right file or not
+  adminBoundary <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM admin_boundary"))
+  spinupParameter <-  as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM spinup_parameter"))
 
-  disturbanceMatrix <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix"))
-  disturbanceMatrixAssociation <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))
-  disturbanceMatrixTr <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"))
-  disturbanceMatrixValue <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_value"))
-  disturbanceType <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type"))
-  disturbanceTypeTr <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type_tr"))
+  disturbanceMatrix <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix"))
+  disturbanceMatrixAssociation <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))
+  disturbanceMatrixTr <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"))
+  disturbanceMatrixValue <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_value"))
+  disturbanceType <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type"))
+  disturbanceTypeTr <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type_tr"))
 
   ecoBoundary <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM eco_boundary"))
   ecoBoundaryTr <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM eco_boundary_tr"))
@@ -98,6 +98,10 @@ Init <- function(sim) {
   species <- dbGetQuery(archiveIndex, "SELECT * FROM species")
   species_tr <- dbGetQuery(archiveIndex, "SELECT * FROM species_tr")
 
+  #linking tables
+  disturbanceTypeTable <- disturbanceMatrixAssociation[disturbanceTypeTr, on = .(disturbance_type_id = disturbance_type_id), allow.cartesian = TRUE]
+  disturbanceMatrixTable <- disturbanceMatrixValue[disturbanceMatrixTr, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian = TRUE]
+  disturbanceMatrixLink <- disturbanceMatrixTable[disturbanceTypeTable, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian = TRUE]
 
 ##TODO: eventually figure what needs to be extracted from database
 
