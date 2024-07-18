@@ -80,11 +80,12 @@ Init <- function(sim) {
   #extract data from database
   archiveIndex <- dbConnect(dbDriver("SQLite"), sim$dbPath)
 
-  #extract matrices
-  spatialUnitIds <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM spatial_unit")) ##TODO: confirm whether this is the right file or not
-  adminBoundary <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM admin_boundary"))
-  spinupParameter <-  as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM spinup_parameter"))
+  ecoBoundary <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM eco_boundary"))
+  ecoBoundaryTr <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM eco_boundary_tr"))
+  species <- dbGetQuery(archiveIndex, "SELECT * FROM species")
+  species_tr <- dbGetQuery(archiveIndex, "SELECT * FROM species_tr")
 
+  #extract disturbance tables
   disturbanceMatrix <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix"))
   disturbanceMatrixAssociation <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))
   disturbanceMatrixTr <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"))
@@ -92,16 +93,18 @@ Init <- function(sim) {
   disturbanceType <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type"))
   disturbanceTypeTr <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type_tr"))
 
-  ecoBoundary <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM eco_boundary"))
-  ecoBoundaryTr <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM eco_boundary_tr"))
-
-  species <- dbGetQuery(archiveIndex, "SELECT * FROM species")
-  species_tr <- dbGetQuery(archiveIndex, "SELECT * FROM species_tr")
-
-  #linking tables
+  #linking disturbance tables
   disturbanceTypeTable <- disturbanceMatrixAssociation[disturbanceTypeTr, on = .(disturbance_type_id = disturbance_type_id), allow.cartesian = TRUE]
   disturbanceMatrixTable <- disturbanceMatrixValue[disturbanceMatrixTr, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian = TRUE]
   disturbanceMatrixLink <- disturbanceMatrixTable[disturbanceTypeTable, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian = TRUE]
+  ##TODO: this last one is HUGE (>3 million rows), probably not worth actually having a single table with every disturbance table and having a couple instead
+
+  #extract spinup and spatial unit ID tables
+  spatialUnitIds <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM spatial_unit")) ##TODO: confirm whether this is the right file or not
+  adminBoundary <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM admin_boundary"))
+  spinupParameter <-  as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM spinup_parameter"))
+  #linking spinup and spatial IDs
+  SpinupSpatialLink <- spatialUnitIds[spinupParameter, on = .(spinup_parameter_id = id)]
 
 ##TODO: eventually figure what needs to be extracted from database
 
