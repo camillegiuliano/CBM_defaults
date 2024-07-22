@@ -80,11 +80,6 @@ Init <- function(sim) {
   #extract data from database
   archiveIndex <- dbConnect(dbDriver("SQLite"), sim$dbPath)
 
-  ecoBoundary <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM eco_boundary"))
-  ecoBoundaryTr <- data.matrix(dbGetQuery(archiveIndex, "SELECT * FROM eco_boundary_tr"))
-  species <- dbGetQuery(archiveIndex, "SELECT * FROM species")
-  species_tr <- dbGetQuery(archiveIndex, "SELECT * FROM species_tr")
-
   #extract disturbance tables
   disturbanceMatrix <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix"))
   disturbanceMatrixAssociation <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))
@@ -97,7 +92,7 @@ Init <- function(sim) {
   disturbanceTypeTable <- disturbanceMatrixAssociation[disturbanceTypeTr, on = .(disturbance_type_id = disturbance_type_id), allow.cartesian = TRUE]
   disturbanceMatrixTable <- disturbanceMatrixValue[disturbanceMatrixTr, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian = TRUE]
   disturbanceMatrixLink <- disturbanceMatrixTable[disturbanceTypeTable, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian = TRUE]
-  ##TODO: this last one is HUGE (>3 million rows), probably not worth actually having a single table with every disturbance table and having a couple instead
+  ##TODO: this last one is HUGE (>3 million rows)
 
   #extract spinup and spatial unit ID tables
   spatialUnitIds <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM spatial_unit")) ##TODO: confirm whether this is the right file or not
