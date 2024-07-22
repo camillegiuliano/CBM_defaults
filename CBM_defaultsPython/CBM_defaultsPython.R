@@ -119,6 +119,7 @@ Init <- function(sim) {
   if (!suppliedElsewhere(sim$dbPath)) {
     sim$dbPath <- "C:/Camille/GitHub/spadesCBM/defaultDB/cbm_defaults_v1.2.8340.362.db"
     ##TODO: this eventually needs to not lead to a locally stored file
+    ## download file here: https://github.com/cat-cfs/libcbm_py/tree/main/libcbm/resources/cbm_defaults_db
   }
 
   # ! ----- STOP EDITING ----- ! #
