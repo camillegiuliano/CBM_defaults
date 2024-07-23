@@ -16,7 +16,7 @@ defineModule(sim, list(
                   ##TODO: get this message currently when adding CBMUtils: CBMutils not on CRAN; checking CRAN archives ...
                   ),
 
-  parameters = bindrows(
+  parameters = bindrows( ##TODO: these are all default SpaDES parameters, not sure if all are needed here
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description"),
     defineParameter(".plotInitialTime", "numeric", start(sim), NA, NA,
                     "Describes the simulation time at which the first plot event should occur."),
@@ -44,7 +44,7 @@ defineModule(sim, list(
 ))
 
 ##TODO this is copied from current CBM_defaults, unsure if that needs to change? it's still only 1 event
-doEvent.CBM_defaultsPython.init <- function(sim, eventTime, eventType, priority) {
+doEvent.CBM_defaultsPython <- function(sim, eventTime, eventType, priority) {
   switch(
     eventType,
     init = {
@@ -55,8 +55,8 @@ doEvent.CBM_defaultsPython.init <- function(sim, eventTime, eventType, priority)
       sim <- Init(sim)
 
       # schedule future event(s)
-      sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "CBM_defaults", "plot")
-      sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, "CBM_defaults", "save")
+      sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "CBM_defaultsPython", "plot")
+      sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, "CBM_defaultsPython", "save")
     },
     # plot = {
     #
@@ -77,26 +77,31 @@ doEvent.CBM_defaultsPython.init <- function(sim, eventTime, eventType, priority)
 ### template initialization
 Init <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
-  ##TODO: pooldef and PoolCount are copied from current version of CBM_defaults, not sure if still needed now.
-  sim$pooldef <- CBMutils::.pooldef
-  sim$PoolCount <- length(sim$pooldef)
-
   #extract data from database
-  archiveIndex <- dbConnect(dbDriver("SQLite"), dbPath)
-  dbListTables(archiveIndex)
+  archiveIndex <- dbConnect(dbDriver("SQLite"), sim$dbPath)
 
-  #create cbmData
-  ##TODO:what else do I need from archiveIndex, the same as what is in current cbm_defaults?
-  matrices2 <- as.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))
-  matrices3 <- as.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"))
-  matrices4 <- as.matrix(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_value"))
-  species <- as.matrix(dbGetQuery(archiveIndex, "SELECT * FROM species"))
-  speciestr <- as.matrix(dbGetQuery(archiveIndex, "SELECT * FROM species_tr"))
+  #extract disturbance tables
+  disturbanceMatrix <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix"))
+  disturbanceMatrixAssociation <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))
+  disturbanceMatrixTr <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"))
+  disturbanceMatrixValue <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_value"))
+  disturbanceType <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type"))
+  disturbanceTypeTr <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type_tr"))
 
-  sim$cbmData <- new("dataset",
-                     matrices2, matrices3, matrices4, species, speciestr)
+  #linking disturbance tables
+  disturbanceTypeTable <- disturbanceMatrixAssociation[disturbanceTypeTr, on = .(disturbance_type_id = disturbance_type_id), allow.cartesian = TRUE]
+  disturbanceMatrixTable <- disturbanceMatrixValue[disturbanceMatrixTr, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian = TRUE]
+  disturbanceMatrixLink <- disturbanceMatrixTable[disturbanceTypeTable, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian = TRUE]
+  ##TODO: this last one is HUGE (>3 million rows)
 
-  ##TODO: figure out if sim$decayRates and sim#processes is still needed here (I assume yes)
+  #extract spinup and spatial unit ID tables
+  spatialUnitIds <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM spatial_unit")) ##TODO: confirm whether this is the right file or not
+  adminBoundary <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM admin_boundary"))
+  spinupParameter <-  as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM spinup_parameter"))
+  #linking spinup and spatial IDs
+  SpinupSpatialLink <- spatialUnitIds[spinupParameter, on = .(spinup_parameter_id = id)]
+
+##TODO: eventually figure what needs to be extracted from database
 
   # ! ----- STOP EDITING ----- ! #
 
@@ -113,7 +118,8 @@ Init <- function(sim) {
 
   if (!suppliedElsewhere(sim$dbPath)) {
     sim$dbPath <- "C:/Camille/GitHub/spadesCBM/defaultDB/cbm_defaults_v1.2.8340.362.db"
-    ##TODO: this needs to not be a local file eventually
+    ##TODO: this eventually needs to not lead to a locally stored file
+    ## download file here: https://github.com/cat-cfs/libcbm_py/tree/main/libcbm/resources/cbm_defaults_db
   }
 
   # ! ----- STOP EDITING ----- ! #
