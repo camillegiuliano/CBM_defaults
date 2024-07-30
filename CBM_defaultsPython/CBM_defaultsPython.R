@@ -82,12 +82,11 @@ Init <- function(sim) {
 
   #extract disturbance tables
   disturbanceMatrix <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix"))
-  disturbanceMatrixAssociation <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))
-  disturbanceMatrixTr <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"))
+  disturbanceMatrixAssociation <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association")) #matrices2
+  disturbanceMatrixTr <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr")) #matrices 3
   disturbanceMatrixValue <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_value"))
   disturbanceType <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type"))
   disturbanceTypeTr <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type_tr"))
-
   #linking disturbance tables
   disturbanceTypeTable <- disturbanceMatrixAssociation[disturbanceTypeTr, on = .(disturbance_type_id = disturbance_type_id), allow.cartesian = TRUE]
   disturbanceMatrixTable <- disturbanceMatrixValue[disturbanceMatrixTr, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian = TRUE]
@@ -99,7 +98,12 @@ Init <- function(sim) {
   adminBoundary <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM admin_boundary"))
   spinupParameter <-  as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM spinup_parameter"))
   #linking spinup and spatial IDs
-  SpinupSpatialLink <- spatialUnitIds[spinupParameter, on = .(spinup_parameter_id = id)]
+  sim$spinupSQL <- spatialUnitIds[spinupParameter, on = .(spinup_parameter_id = id)]
+
+  #extract for pooldef
+  pooldef <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM pool"))
+  poolTR <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM pool_tr")) ##maybe not needed
+
 
 ##TODO: eventually figure what needs to be extracted from database
 
