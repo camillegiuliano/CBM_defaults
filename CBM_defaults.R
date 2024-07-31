@@ -78,17 +78,9 @@ Init <- function(sim) {
   archiveIndex <- dbConnect(dbDriver("SQLite"), sim$dbPath)
 
   #extract disturbance tables
-  disturbanceMatrix <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix"))
-  sim$disturbanceMatrixAssociation <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association")) #matrices2
-  sim$disturbanceMatrixTr <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr")) #matrices 3
-  disturbanceMatrixValue <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_value"))
-  sim$disturbanceType <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type"))
-  disturbanceTypeTr <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type_tr"))
-  #linking disturbance tables
-  disturbanceTypeTable <- disturbanceMatrixAssociation[disturbanceTypeTr, on = .(disturbance_type_id = disturbance_type_id), allow.cartesian = TRUE]
-  disturbanceMatrixTable <- disturbanceMatrixValue[disturbanceMatrixTr, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian = TRUE]
-  disturbanceMatrixLink <- disturbanceMatrixTable[disturbanceTypeTable, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian = TRUE]
-  ##TODO: this last one is HUGE (>3 million rows)
+  sim$matrices2 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))
+  sim$matrices3 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"))
+  sim$matrices5 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type"))
 
   #extract spinup and spatial unit ID tables
   spatialUnitIds <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM spatial_unit")) ##TODO: do we want this in spinupSQL or just the paramater file?
@@ -98,7 +90,7 @@ Init <- function(sim) {
 
   #extract for pooldef
   sim$pooldef <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM pool"))
-  poolTR <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM pool_tr")) ##maybe not needed
+  poolTR <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM pool_tr")) ##maybe not needed, this has pool names in other languages/regions
 
   #find forest_type_id
   sim$forestTypeId <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM forest_type_tr"))
