@@ -91,7 +91,8 @@ Init <- function(sim) {
   sim$spinupSQL <- spatialUnitIds[spinupParameter, on = .(spinup_parameter_id = id)]
 
   #extract for pooldef
-  sim$pooldef <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM pool"))
+  pooldef <- dbGetQuery(archiveIndex, "SELECT * FROM pool")
+  sim$pooldef <- as.character(pooldef$code)
   poolTR <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM pool_tr")) ##maybe not needed, this has pool names in other languages/regions
 
   #find forest_type_id
