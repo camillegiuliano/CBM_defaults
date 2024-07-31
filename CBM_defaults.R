@@ -78,10 +78,10 @@ Init <- function(sim) {
   archiveIndex <- dbConnect(dbDriver("SQLite"), sim$dbPath)
 
   #extract disturbance tables
-  matrices2 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))##TODO: link with disturbance_type_id to disturbance_matrix_id and disturbance_name
+  matrices2 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))
   matrices3 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"))
   sim$disturbanceMatrix <- matrices2[matrices3, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian = TRUE]
-  sim$matrices5 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type"))
+  sim$matrices5 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type")) ##TODO probably not needed
   ##TODO: do these need to be connected to eachother or should they be standalone as is?
 
   #extract spinup and spatial unit ID tables
@@ -93,7 +93,6 @@ Init <- function(sim) {
   #extract for pooldef
   pooldef <- dbGetQuery(archiveIndex, "SELECT * FROM pool")
   sim$pooldef <- as.character(pooldef$code)
-  poolTR <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM pool_tr")) ##maybe not needed, this has pool names in other languages/regions
 
   #find forest_type_id
   sim$forestTypeId <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM forest_type_tr"))
