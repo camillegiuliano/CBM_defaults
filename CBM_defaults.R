@@ -78,15 +78,16 @@ Init <- function(sim) {
   archiveIndex <- dbConnect(dbDriver("SQLite"), sim$dbPath)
 
   #extract disturbance tables
-  sim$matrices2 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))
-  sim$matrices3 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"))
+  matrices2 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))##TODO: link with disturbance_type_id to disturbance_matrix_id and disturbance_name
+  matrices3 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"))
+  sim$disturbanceMatrix <- matrices2[matrices3, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian = TRUE]
   sim$matrices5 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type"))
   ##TODO: do these need to be connected to eachother or should they be standalone as is?
 
   #extract spinup and spatial unit ID tables
-  spatialUnitIds <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM spatial_unit")) ##TODO: do we want this in spinupSQL or just the paramater file?
+  spatialUnitIds <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM spatial_unit"))
   spinupParameter <-  as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM spinup_parameter"))
-  #linking spinup and spatial IDs
+  #create spinupSQL
   sim$spinupSQL <- spatialUnitIds[spinupParameter, on = .(spinup_parameter_id = id)]
 
   #extract for pooldef
