@@ -74,13 +74,14 @@ doEvent.CBM_defaults <- function(sim, eventTime, eventType, debug = FALSE) {
 ### template initialization
 Init <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
-  #extract data from database
+  #get database
   archiveIndex <- dbConnect(dbDriver("SQLite"), sim$dbPath)
 
   #extract disturbance tables
   sim$matrices2 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))
   sim$matrices3 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"))
   sim$matrices5 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type"))
+  ##TODO: do these need to be connected to eachother or should they be standalone as is?
 
   #extract spinup and spatial unit ID tables
   spatialUnitIds <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM spatial_unit")) ##TODO: do we want this in spinupSQL or just the paramater file?
@@ -94,9 +95,6 @@ Init <- function(sim) {
 
   #find forest_type_id
   sim$forestTypeId <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM forest_type_tr"))
-
-
-  ##TODO: eventually figure what needs to be extracted from database
 
   # ! ----- STOP EDITING ----- ! #
 
