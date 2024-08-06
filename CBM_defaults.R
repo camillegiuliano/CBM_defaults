@@ -36,10 +36,10 @@ defineModule(sim, list(
   ),
   outputObjects = bindrows( ##TODO: find outputs, cbmdata, disturbance data, species data
     #createsOutput("objectName", "objectClass", "output object description", ...),
-    createsOutput(objectName = "cbmData", objectClass = "dataset", desc = NA),
-    createsOutput(objectName = "pooldef", objectClass = "character", desc = NA),
-    createsOutput(objectName = "poolCount", objectClass = "numeric", desc = NA),
-    createsOutput(objectName = "", objectClass = "", desc = NA), ##TODO: add missing outputs
+    createsOutput(objectName = "disturbanceMatrix", objectClass = "dataset", desc = NA),
+    createsOutput(objectName = "spinupSQL", objectClass = "dataset", desc = NA),
+    createsOutput(objectName = "forestTypeId", objectClass = "dataset", desc = NA),
+    createsOutput(objectName = "pooldef", objectClass = "character", desc = NA) ##TODO: add missing outputs
   )
 ))
 
@@ -76,6 +76,8 @@ Init <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
   #get database
   archiveIndex <- dbConnect(dbDriver("SQLite"), sim$dbPath)
+
+  browser()
 
   #extract disturbance tables
   matrices2 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))
