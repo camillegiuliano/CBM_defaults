@@ -82,9 +82,9 @@ Init <- function(sim) {
   #extract disturbance tables
   matrices2 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))
   matrices3 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"))
-  matrices6 <- dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type_tr")
+  matrices6 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type_tr"))
   disturbance1 <- matrices2[matrices3, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian = TRUE]
-  disturbanceMatrix <- disturbance1[matrices6, on = .(disturbance_type_id = disturbance_type_id, locale_id = locale_id), allow.cartesian = TRUE]
+  sim$disturbanceMatrix <- disturbance1[matrices6, on = .(disturbance_type_id = disturbance_type_id, locale_id = locale_id), allow.cartesian = TRUE]
 ##TODO this has 2/3 columns also needed for disturbance_type_ref_en_ca (spatial_unit_id and disturbance_type_id).
   # however this is a huge file because it has disturbance names in english, french, spanish, and russian.
 
