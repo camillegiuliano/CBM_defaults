@@ -82,9 +82,14 @@ Init <- function(sim) {
   #extract disturbance tables
   matrices2 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))
   matrices3 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"))
-  sim$disturbanceMatrix <- matrices2[matrices3, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian = TRUE]
-  sim$matrices5 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type")) ##TODO probably not needed
-  ##TODO: do these need to be connected to eachother or should they be standalone as is?
+  matrices6 <- dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type_tr")
+  disturbance1 <- matrices2[matrices3, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian = TRUE]
+  sim$disturbanceMatrix <- disturbance1[matrices6, on = .(disturbance_type_id = disturbance_type_id), allow.cartesian = TRUE]
+##TODO this has 2/3 columns also needed for disturbance_type_ref_en_ca (spatial_unit_id and disturbance_type_id).
+  # however this is a huge file because it has disturbance names in english, french, spanish, and russian.
+
+   sim$matrices5 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type"))
+   ##TODO is id = to disturbance_type_id?
 
   #extract spinup and spatial unit ID tables
   spatialUnitIds <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM spatial_unit"))
@@ -95,6 +100,7 @@ Init <- function(sim) {
   #extract for pooldef
   pooldef <- dbGetQuery(archiveIndex, "SELECT * FROM pool")
   sim$pooldef <- as.character(pooldef$code)
+  sim$poolCount <- length(sim$pooldef)
 
   #find forest_type_id
   sim$forestTypeId <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM forest_type_tr"))
