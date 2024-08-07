@@ -30,16 +30,16 @@ defineModule(sim, list(
                     "Should caching of events or module be used?") ##TODO: keep if caching
   ),
 
-  inputObjects = bindrows( ##TODO: find inputs (so far just dbPath)
+  inputObjects = bindrows( ##TODO: find inputs (so far just dbPath), should archiveIndex be an input? prob not
     expectsInput(objectName = "dbPath", objectClass = "character", desc = NA, sourceURL = NA),
 
   ),
-  outputObjects = bindrows( ##TODO: find outputs, cbmdata, disturbance data, species data
-    #createsOutput("objectName", "objectClass", "output object description", ...),
+  outputObjects = bindrows(
     createsOutput(objectName = "disturbanceMatrix", objectClass = "dataset", desc = NA),
     createsOutput(objectName = "spinupSQL", objectClass = "dataset", desc = NA),
     createsOutput(objectName = "forestTypeId", objectClass = "dataset", desc = NA),
-    createsOutput(objectName = "pooldef", objectClass = "character", desc = NA) ##TODO: add missing outputs
+    createsOutput(objectName = "pooldef", objectClass = "character", desc = NA),
+    createsOutput(objectName = "poolCount", objectClass = "numeric", desc = NA)##TODO: add missing outputs
   )
 ))
 
@@ -98,8 +98,15 @@ Init <- function(sim) {
   sim$spinupSQL <- spatialUnitIds[spinupParameter, on = .(spinup_parameter_id = id)]
 
   #extract for pooldef
-  pooldef <- dbGetQuery(archiveIndex, "SELECT * FROM pool")
-  sim$pooldef <- as.character(pooldef$code)
+  ##TODO pooldef from the SQL database is OUTDATED.once fixed, add this back in and remove the hard code below.
+  #pooldef <- dbGetQuery(archiveIndex, "SELECT * FROM pool")
+  #sim$pooldef <- as.character(pooldef$code)
+  sim$pooldef = c(
+    "Input","Merch", "Foliage", "Other", "CoarseRoots", "FineRoots",
+    "AboveGroundVeryFastSoil", "BelowGroundVeryFastSoil",
+    "AboveGroundFastSoil", "BelowGroundFastSoil", "MediumSoil",
+    "AboveGroundSlowSoil", "BelowGroundSlowSoil", "StemSnag",
+    "BranchSnag", "CO2", "CH4", "CO", "NO2", "Products")
   sim$poolCount <- length(sim$pooldef)
 
   #find forest_type_id
