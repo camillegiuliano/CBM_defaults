@@ -77,8 +77,6 @@ Init <- function(sim) {
   #get database
   archiveIndex <- dbConnect(dbDriver("SQLite"), sim$dbPath)
 
-  browser()
-
   #extract disturbance tables
   matrices2 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))
   matrices3 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"))
