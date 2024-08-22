@@ -74,6 +74,12 @@ doEvent.CBM_defaults <- function(sim, eventTime, eventType, debug = FALSE) {
 ### template initialization
 Init <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
+  ##TODO: cant get prepInputs to properly download this file without errors, this is the workaround I got to work. Downloads the database properly.
+
+  url <- "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_defaults_db/cbm_defaults_v1.2.8340.362.db"
+  sim$dbPath <- file.path("inputs", "cbm_defaults_v1.2.8340.362.db")
+  download.file(url, sim$dbPath, mode = "wb")
+
   #get database
   archiveIndex <- dbConnect(dbDriver("SQLite"), sim$dbPath)
 
@@ -108,7 +114,8 @@ Init <- function(sim) {
   sim$poolCount <- length(sim$pooldef)
 
   #find forest_type_id
-  sim$forestTypeId <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM forest_type_tr"))
+  forestTypeId <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM forest_type_tr"))
+  sim$forestTypeId <- forestTypeId[, .(is_sw = any(forest_type_id == 1)), .(name, locale_id, forest_type_id)]
 
   # ! ----- STOP EDITING ----- ! #
 
