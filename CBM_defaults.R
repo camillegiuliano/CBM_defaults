@@ -75,7 +75,7 @@ doEvent.CBM_defaults <- function(sim, eventTime, eventType, debug = FALSE) {
 Init <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
   ##TODO: cant get prepInputs to properly download this file without errors, this is the workaround I got to work. Downloads the database properly.
-
+#this workaround wasn't working when in .inputObjects. Created it here instead in the meantime.
   url <- "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_defaults_db/cbm_defaults_v1.2.8340.362.db"
   sim$dbPath <- file.path("inputs", "cbm_defaults_v1.2.8340.362.db")
   download.file(url, sim$dbPath, mode = "wb")
@@ -86,11 +86,13 @@ Init <- function(sim) {
   #extract disturbance tables
   matrices2 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))
   matrices3 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"))
+  matrices3 <- matrices3[locale_id <= 2,]
   matrices6 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type_tr"))
+  matrices6 <- matrices6[locale_id <= 2,]
   disturbance1 <- matrices2[matrices3, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian = TRUE]
   sim$disturbanceMatrix <- disturbance1[matrices6, on = .(disturbance_type_id = disturbance_type_id, locale_id = locale_id), allow.cartesian = TRUE]
 ##TODO this has 2/3 columns also needed for disturbance_type_ref_en_ca (spatial_unit_id and disturbance_type_id).
-  # however this is a huge file because it has disturbance names in english, french, spanish, and russian.
+  #This version has spanish and russian disturbance translations removed. I kept french in as I assumed it would likely be needed for quebec data
 
    sim$matrices5 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type"))
    ##TODO is id = to disturbance_type_id?
