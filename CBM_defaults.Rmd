@@ -6,12 +6,34 @@ output: pdf_document
 editor_options: 
   chunk_output_type: console
 ---
+
 # CBM_defaults
 
 ## Overview
 
-This module can run independently by running the global script below.
-Its main task is to read-in all the default values in SpaDES-CBM which is akin to the `ArchiveIndex` in CBM-CFS3 runs.
+The primary role of the CBM_defaults module is to read in various tables from the SQLite database file. This includes default disturbance data such as different disturbance types and their IDs, spinup parameters, pool names, and more. The outputs of this module are primarily used in CBM_dataPrep_x and CBM_core.
+
+## List of input objects
+
+| Name          | Class        | Description                       | Source     |
+|----------------|----------------|-------------------------|----------------|
+| Archive Index | SQL Database | SQLite database file for CFS_CBM3 | insert url |
+
+## List of output objects
+
+| Name              | Class      | Description                                   |
+|------------------|------------------|------------------------------------|
+| disturbanceMatrix | Data table | Default disturbance data                      |
+| spinupSQL         | Data table | Parameters for CBM_core spinup event          |
+| pooldef           | Character  | Defines pool types                            |
+| poolCount         | Numeric    | Number of pool types                          |
+| forestTypeID      | Data table | Defines forest types and their respective IDs |
+
+## OLD VERSION
+
+## Overview
+
+This module can run independently by running the global script below. Its main task is to read-in all the default values in SpaDES-CBM which is akin to the `ArchiveIndex` in CBM-CFS3 runs.
 
 ## Usage
 
@@ -81,8 +103,7 @@ Write what is saved.
 
 ### Input data
 
-How to obtain input data, and a description of the data required by the module.
-If `sourceURL` is specified, `downloadData("CBM_defaults", "path/to/modules/dir")` may be sufficient.
+How to obtain input data, and a description of the data required by the module. If `sourceURL` is specified, `downloadData("CBM_defaults", "path/to/modules/dir")` may be sufficient.
 
 ### Output data
 
@@ -91,4 +112,3 @@ Description of the module outputs.
 ## Links to other modules
 
 Describe any anticipated linkages to other modules.
-
