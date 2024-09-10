@@ -25,8 +25,8 @@ The primary role of the CBM_defaults module is to read in various tables from th
 |-------------------|-------------------|----------------------------------|
 | disturbanceMatrix | Data table | Default disturbance data                      |
 | spinupSQL         | Data table | Parameters for CBM_core spinup event          |
-| pooldef           | Character  | Defines pool types                            |
-| poolCount         | Numeric    | Number of pool types                          |
+| pooldef           | Character  | Vector of pools                            |
+| poolCount         | Numeric    | Length of pooldef                          |
 | forestTypeID      | Data table | Defines forest types and their respective IDs |
 
 ## Module flow
