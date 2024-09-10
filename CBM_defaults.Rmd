@@ -15,19 +15,29 @@ The primary role of the CBM_defaults module is to read in various tables from th
 
 ## List of input objects
 
-| Name          | Class        | Description                       | Source     |
-|----------------|----------------|-------------------------|----------------|
-| Archive Index | SQL Database | SQLite database file for CFS_CBM3 | insert url |
+| Name          | Class        | Description                                      | Source                                                                            |
+|-----------------|-----------------|--------------------|-------------------|
+| Archive Index | SQL Database | SQLite database file for CFS_CBM3 default tables | <https://github.com/cat-cfs/libcbm_py/tree/main/libcbm/resources/cbm_defaults_db> |
 
 ## List of output objects
 
 | Name              | Class      | Description                                   |
-|------------------|------------------|------------------------------------|
+|-------------------|-------------------|----------------------------------|
 | disturbanceMatrix | Data table | Default disturbance data                      |
 | spinupSQL         | Data table | Parameters for CBM_core spinup event          |
 | pooldef           | Character  | Defines pool types                            |
 | poolCount         | Numeric    | Number of pool types                          |
 | forestTypeID      | Data table | Defines forest types and their respective IDs |
+
+## Module flow
+
+1.  the SQLite database file is downloaded and stored into the user's Inputs folder from GitHub using `prepInputs`.
+2.  Create a connection to the database with `dbConnect`. This creates the archiveIndex object.
+3.  Using `dbGetQuery`, 3 disturbance tables are extracted from archiveIndex. These tables are named matrices2, matrices3, and matrices6. These are merged to create the disturbanceMatrix object.
+4.  spatialUnitsID and spinupParameters are extracted from archiveIndex and merged to create the spinupSQL object.
+5.  pooldef is then extracted, and transformed into a Character class object.
+6.  poolCount is created by defining the length of pooldef.
+7.  forestTypeID is extracted from archiveIndex and a is_sw column is created where any entry where forest_type_id = 1 is `TRUE` and everything else is `FALSE`.
 
 ## OLD VERSION
 

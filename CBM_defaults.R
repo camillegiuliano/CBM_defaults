@@ -12,7 +12,7 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "CBM_defaults.Rmd"),
-  reqdPkgs = list("RSQLite", "data.table"
+  reqdPkgs = list("RSQLite", "data.table", "CBMutils"
                   ##TODO: get this message currently when adding CBMUtils: CBMutils not on CRAN; checking CRAN archives ...
   ),
 
