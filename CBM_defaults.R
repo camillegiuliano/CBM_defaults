@@ -74,12 +74,6 @@ doEvent.CBM_defaults <- function(sim, eventTime, eventType, debug = FALSE) {
 ### template initialization
 Init <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
-  ##TODO: cant get prepInputs to properly download this file without errors, this is the workaround I got to work. Downloads the database properly.
-#this workaround wasn't working when in .inputObjects. Created it here instead in the meantime.
-  url <- "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_defaults_db/cbm_defaults_v1.2.8340.362.db"
-  sim$dbPath <- file.path("inputs", "cbm_defaults_v1.2.8340.362.db")
-  download.file(url, sim$dbPath, mode = "wb")
-
   #get database
   archiveIndex <- dbConnect(dbDriver("SQLite"), sim$dbPath)
 
@@ -133,7 +127,11 @@ Init <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
 
   if (!suppliedElsewhere(sim$dbPath)) {
-    sim$dbPath <- "C:/Camille/GitHub/spadesCBM/defaultDB/cbm_defaults_v1.2.8340.362.db"
+    ##TODO: cant get prepInputs to properly download this file without errors, this is the workaround I got to work. Downloads the database properly.
+    url <- "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_defaults_db/cbm_defaults_v1.2.8340.362.db"
+    sim$dbPath <- file.path("inputs", "cbm_defaults_v1.2.8340.362.db")
+    download.file(url, sim$dbPath, mode = "wb")
+    # sim$dbPath <- "C:/Camille/GitHub/spadesCBM/defaultDB/cbm_defaults_v1.2.8340.362.db"
     ##TODO: this eventually needs to not lead to a locally stored file
     ## download file here: https://github.com/cat-cfs/libcbm_py/tree/main/libcbm/resources/cbm_defaults_db
   }
