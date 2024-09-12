@@ -128,11 +128,13 @@ Init <- function(sim) {
 
   if (!suppliedElsewhere(sim$dbPath)) {
     ##TODO: cant get prepInputs to properly download this file without errors, this is the workaround I got to work. Downloads the database properly.
-    url <- "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_defaults_db/cbm_defaults_v1.2.8340.362.db"
-    sim$dbPath <- file.path("inputs", "cbm_defaults_v1.2.8340.362.db")
-    download.file(url, sim$dbPath, mode = "wb")
-    # sim$dbPath <- "C:/Camille/GitHub/spadesCBM/defaultDB/cbm_defaults_v1.2.8340.362.db"
-    ##TODO: this eventually needs to not lead to a locally stored file
+   sim$dbPath <- prepInputs(url = "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_defaults_db/cbm_defaults_v1.2.8340.362.db",
+                        targetFile = "cbm_defaults_v1.2.8340.362.db",
+                        alsoExtract = NA,
+                        destinationPath = "inputs",
+                        fun = NA,
+                        purge = 7
+                        )
     ## download file here: https://github.com/cat-cfs/libcbm_py/tree/main/libcbm/resources/cbm_defaults_db
   }
 
