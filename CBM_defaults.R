@@ -13,7 +13,6 @@ defineModule(sim, list(
   citation = list("citation.bib"),
   documentation = list("README.txt", "CBM_defaults.Rmd"),
   reqdPkgs = list("RSQLite", "data.table", "CBMutils"
-                  ##TODO: get this message currently when adding CBMUtils: CBMutils not on CRAN; checking CRAN archives ...
   ),
 
   parameters = bindrows( ##TODO: these are all default SpaDES parameters, not sure if all are needed here
@@ -30,20 +29,18 @@ defineModule(sim, list(
                     "Should caching of events or module be used?") ##TODO: keep if caching
   ),
 
-  inputObjects = bindrows( ##TODO: find inputs (so far just dbPath), should archiveIndex be an input? prob not
+  inputObjects = bindrows(
     expectsInput(objectName = "dbPath", objectClass = "character", desc = NA, sourceURL = NA),
-
   ),
   outputObjects = bindrows(
     createsOutput(objectName = "disturbanceMatrix", objectClass = "dataset", desc = NA),
     createsOutput(objectName = "spinupSQL", objectClass = "dataset", desc = NA),
     createsOutput(objectName = "forestTypeId", objectClass = "dataset", desc = NA),
     createsOutput(objectName = "pooldef", objectClass = "character", desc = NA),
-    createsOutput(objectName = "poolCount", objectClass = "numeric", desc = NA)##TODO: add missing outputs
+    createsOutput(objectName = "poolCount", objectClass = "numeric", desc = NA)
   )
 ))
 
-##TODO this is copied from current CBM_defaults, unsure if that needs to change? it's still only 1 event
 doEvent.CBM_defaults <- function(sim, eventTime, eventType, debug = FALSE) {
   switch(
     eventType,
@@ -85,11 +82,7 @@ Init <- function(sim) {
   matrices6 <- matrices6[locale_id <= 1,]
   disturbance1 <- matrices2[matrices3, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian = TRUE]
   sim$disturbanceMatrix <- disturbance1[matrices6, on = .(disturbance_type_id = disturbance_type_id, locale_id = locale_id), allow.cartesian = TRUE]
-##TODO this has 2/3 columns also needed for disturbance_type_ref_en_ca (spatial_unit_id and disturbance_type_id).
-  #This version has spanish and russian disturbance translations removed. I kept french in as I assumed it would likely be needed for quebec data
-
-   sim$matrices5 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_type"))
-   ##TODO is id = to disturbance_type_id?
+  #This version has ftrench, spanish and russian disturbance translations removed.
 
   #extract spinup and spatial unit ID tables
   spatialUnitIds <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM spatial_unit"))
@@ -122,12 +115,12 @@ Init <- function(sim) {
 
   #cacheTags <- c(currentModule(sim), "function:.inputObjects") ## uncomment this if Cache is being used
   dPath <- asPath(getOption("reproducible.destinationPath", dataPath(sim)), 1)
-  message(currentModule(sim), ": using dataPath '", dPath, "'.") ##TODO: figure out what this does/means, and what needs to be changed for this module
+  message(currentModule(sim), ": using dataPath '", dPath, "'.")
 
   # ! ----- EDIT BELOW ----- ! #
 
   if (!suppliedElsewhere(sim$dbPath)) {
-    ##TODO: cant get prepInputs to properly download this file without errors, this is the workaround I got to work. Downloads the database properly.
+
    sim$dbPath <- prepInputs(url = "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_defaults_db/cbm_defaults_v1.2.8340.362.db",
                         targetFile = "cbm_defaults_v1.2.8340.362.db",
                         alsoExtract = NA,
