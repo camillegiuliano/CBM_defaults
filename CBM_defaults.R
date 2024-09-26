@@ -99,7 +99,7 @@ Init <- function(sim) {
   # [45] "stump_parameter"                      "turnover_parameter"
   # [47] "vol_to_bio_factor"                    "vol_to_bio_forest_type"
   # [49] "vol_to_bio_genus"                     "vol_to_bio_species"
-browser()
+
   #extract disturbance tables
   # This table, matrices2, has only spatial_unit_id disturbance_type_id
   # disturbance_matrix_id
