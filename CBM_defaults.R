@@ -126,7 +126,7 @@ Init <- function(sim) {
   # matrices6 has French, Spanish and Russian disturbance translations, here we
   # only keep one copy in English.
   matrices6 <- matrices6[locale_id <= 1,]
-  # disturbance1 links together spatial_unit_id disturbance_type_id
+  # $disturbanceMatrix links together spatial_unit_id disturbance_type_id
   # disturbance_matrix_id and the disturbance names. The difference between the
   # names in matrices3 and matrices6 is that the names in matrices6 is that
   # those in matrices3 are linked to the National Inventory Report used by the
