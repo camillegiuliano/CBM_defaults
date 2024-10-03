@@ -119,8 +119,9 @@ Init <- function(sim) {
   matrices4 <-  as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_value"))
 
   # here we merge matrices3 and 4 with disturbance_matrix_id to add matrix names to the carbon transfer proportions of matrices4
-  sim$cTransfers <- matrices4[matrices3, on = .(disturbance_matrix_id = disturbance_matrix_id)]
-
+  cTransfers <- matrices4[matrices3, on = .(disturbance_matrix_id = disturbance_matrix_id)]
+  sim$cTransfers <- cTransfers[,.(disturbance_matrix_id, source_pool_id,
+                                  sink_pool_id, proportion)]
   # This table, matrices6, has all the names associated with
   # disturbance_type_id. disturbance_type_id, along with spatial_unit_id and a
   # sw_hw flag is how libcbm connects (internally) to the proportions. In the
