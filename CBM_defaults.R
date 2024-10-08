@@ -12,8 +12,7 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "CBM_defaults.Rmd"),
-  reqdPkgs = list("RSQLite", "data.table", "CBMutils"
-  ),
+  reqdPkgs = list("RSQLite", "data.table"),
 
   parameters = bindrows( ##TODO: these are all default SpaDES parameters, not sure if all are needed here
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description"),
