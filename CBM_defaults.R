@@ -178,7 +178,7 @@ Init <- function(sim) {
   ##(CBM_dataPrep_XX), we can remove this from CBM_defaults.
   sim$poolCount <- length(sim$pooldef)
 
-  ##TODO right now (SK examples) forest_type_id is provided by the use via
+  ##TODO right now (SK examples) forest_type_id is provided by the user via
   ##gcMetaEg.csv. But the user could provide the forest type via the name in the
   ##"name" column below. sw_hw identification is important as it links to the
   ##carbon transfer proportion matrices. Right now, CBM_vol2biomass deals with
