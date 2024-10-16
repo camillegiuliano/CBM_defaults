@@ -110,6 +110,8 @@ Init <- function(sim) {
   # matrices3 has French, Spanish and Russian disturbance translations, here we
   # only keep one copy in English.
   matrices3 <- matrices3[locale_id <= 1,]
+  # only keep the colums we need, disturbance_matrix_id and its associated description
+  matrices3 <- matrices3[,.(disturbance_matrix_id, description)]
 
   # This table, matrices4, links disturbance_matrix_id to the proportion of
   # carbon transferred from source_pool_id sink_pool_id. source_pool_id
@@ -132,16 +134,21 @@ Init <- function(sim) {
   # matrices6 has French, Spanish and Russian disturbance translations, here we
   # only keep one copy in English.
   matrices6 <- matrices6[locale_id <= 1,]
-
+  # only keep the colums we need, disturbance_type_id and its associated name.
+  matrices6 <- matrices6[,.(disturbance_type_id, name)]
   # $disturbanceMatrix links together spatial_unit_id disturbance_type_id
-  # disturbance_matrix_id and the disturbance names. The difference between the
-  # names in matrices3 and matrices6 is that the names in matrices6 is that
+  # disturbance_matrix_id, the disturbance names and descriptions. The difference between the
+  # names and descriptions in matrices3 and matrices6 is that
   # those in matrices3 are linked to the National Inventory Report used by the
   # CAT for reporting (there are 1008 rows). Names in matrices6 are simpler
   # disturbance description (there are 172 rows).
-  sim$disturbanceMatrix <- matrices2[matrices6, on = .(disturbance_type_id = disturbance_type_id), allow.cartesian = TRUE]
-  # This version has French, Spanish and Russian disturbance translations removed.
+  # names and descriptions in matrices3 are assocaited to disturbance_matrix_id, whereas matrices6 is associated to disturbance_type_id
 
+  disturbanceMatrix <- matrices2[matrices6, on = .(disturbance_type_id = disturbance_type_id), allow.cartesian = TRUE]
+  sim$disturbanceMatrix <- disturbanceMatrix[matrices3, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian = TRUE]
+
+
+  # This version has French, Spanish and Russian disturbance translations removed.
   # Get location and mean_annual_temperature for each spatial_unit, along with
   # other spinup parameters. These are needed to create sim$level3DT in
   # CBM_dataPrep_XX, which are in turn used in the CBM_core to create the
