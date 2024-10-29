@@ -99,6 +99,13 @@ Init <- function(sim) {
   # [47] "vol_to_bio_factor"                    "vol_to_bio_forest_type"
   # [49] "vol_to_bio_genus"                     "vol_to_bio_species"
 
+
+#extract species tables
+  # this table has species_id, locale_id, name
+species_tr <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM species_tr"))
+#keep english only
+sim$species_tr <- species_tr[locale_id <= 1,]
+
   #extract disturbance tables
   # This table, matrices2, has only spatial_unit_id disturbance_type_id
   # disturbance_matrix_id
