@@ -14,8 +14,7 @@ defineModule(sim, list(
   documentation = list("README.txt", "CBM_defaults.Rmd"),
   reqdPkgs = list("RSQLite", "data.table"),
 
-  parameters = bindrows( ##TODO: these are all default SpaDES parameters, not sure if all are needed here
-    #defineParameter("paramName", "paramClass", value, min, max, "parameter description"),
+  parameters = bindrows(
     defineParameter(".plotInitialTime", "numeric", start(sim), NA, NA,
                     "Describes the simulation time at which the first plot event should occur."),
     defineParameter(".plotInterval", "numeric", NA, NA, NA,
@@ -165,32 +164,14 @@ sim$species_tr <- species_tr[locale_id <= 1,]
   #create $spinupSQL for use in other modules
   sim$spinupSQL <- spatialUnitIds[spinupParameter, on = .(spinup_parameter_id = id)]
 
-  #extract for pooldef
-  ##TODO pooldef from the SQL database is OUTDATED. Need to coordinate with
-  ##Scott to see if the SQLight can be modified and to identify where in libcbm
-  ##scripts poolDef is defined (probably in cbm_exn_get_default_parameters()).
-  ##Once fixed/identified, add info and this back in
-  ##and remove the hard code below.
-  # pooldef <- dbGetQuery(archiveIndex, "SELECT * FROM pool")
-  # sim$pooldef <- as.character(pooldef$code)
-
+  #define pooldef
   sim$pooldef = c(
     "Input","Merch", "Foliage", "Other", "CoarseRoots", "FineRoots",
     "AboveGroundVeryFastSoil", "BelowGroundVeryFastSoil",
     "AboveGroundFastSoil", "BelowGroundFastSoil", "MediumSoil",
     "AboveGroundSlowSoil", "BelowGroundSlowSoil", "StemSnag",
     "BranchSnag", "CO2", "CH4", "CO", "NO2", "Products")
-  ##TODO $poolCount is not needed anymore as a spinup_parameter with the
-  ##migration to libcbm. Once the last module has transitioned
-  ##(CBM_dataPrep_XX), we can remove this from CBM_defaults.
-  sim$poolCount <- length(sim$pooldef)
 
-  ##TODO right now (SK examples) forest_type_id is provided by the user via
-  ##gcMetaEg.csv. But the user could provide the forest type via the name in the
-  ##"name" column below. sw_hw identification is important as it links to the
-  ##carbon transfer proportion matrices. Right now, CBM_vol2biomass deals with
-  ##forestType on lines 606-616, and CBM_core from line 313-319. We need a more
-  ##generalized option for users that uses the table below.
   #find forest_type_id
   forestTypeId <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM forest_type_tr"))
   sim$forestTypeId <- forestTypeId[, .(is_sw = any(forest_type_id == 1)), .(name, locale_id, forest_type_id)]
