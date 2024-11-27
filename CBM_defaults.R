@@ -29,10 +29,13 @@ defineModule(sim, list(
   ),
 
   inputObjects = bindrows(
-    expectsInput(objectName = "dbPath", objectClass = "character", desc = NA, sourceURL = NA),
+    expectsInput(objectName = "dbPath", objectClass = "character", desc = NA,
+                 sourceURL = "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_defaults_db/cbm_defaults_v1.2.8340.362.db"),
   ),
   outputObjects = bindrows(
+    createsOutput(objectName = "species_tr", objectClass = "dataset", desc = NA),
     createsOutput(objectName = "disturbanceMatrix", objectClass = "dataset", desc = NA),
+    createsOutput(objectName = "cTransfers", objectClass = "dataset", desc = NA),
     createsOutput(objectName = "spinupSQL", objectClass = "dataset", desc = NA),
     createsOutput(objectName = "forestTypeId", objectClass = "dataset", desc = NA),
     createsOutput(objectName = "pooldef", objectClass = "character", desc = NA),
@@ -209,8 +212,8 @@ sim$species_tr <- species_tr[locale_id <= 1,]
   # ! ----- EDIT BELOW ----- ! #
 
   if (!suppliedElsewhere(sim$dbPath)) {
-
-   sim$dbPath <- prepInputs(url = "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_defaults_db/cbm_defaults_v1.2.8340.362.db",
+   sim$dbPathURL <- extractURL("dbPath")
+   sim$dbPath <- prepInputs(url = sim$dbPathURL
                         targetFile = "cbm_defaults_v1.2.8340.362.db",
                         alsoExtract = NA,
                         destinationPath = "inputs",
