@@ -31,6 +31,8 @@ defineModule(sim, list(
   inputObjects = bindrows(
     expectsInput(objectName = "dbPath", objectClass = "character", desc = NA,
                  sourceURL = "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_defaults_db/cbm_defaults_v1.2.8340.362.db"),
+    expectsInput(objectName = "dbPathURL", objectClass = "character",
+                 desc = "URL for dbPath"),
   ),
   outputObjects = bindrows(
     createsOutput(objectName = "species_tr", objectClass = "dataset", desc = NA),
@@ -213,10 +215,10 @@ sim$species_tr <- species_tr[locale_id <= 1,]
 
   if (!suppliedElsewhere(sim$dbPath)) {
    sim$dbPathURL <- extractURL("dbPath")
-   sim$dbPath <- prepInputs(url = sim$dbPathURL
+   sim$dbPath <- prepInputs(url = sim$dbPathURL,
                         targetFile = "cbm_defaults_v1.2.8340.362.db",
                         alsoExtract = NA,
-                        destinationPath = "inputs",
+                        destinationPath = inputPath(sim),
                         fun = NA,
                         purge = 7
                         )
