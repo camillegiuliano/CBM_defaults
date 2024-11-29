@@ -7,7 +7,7 @@ defineModule(sim, list(
   ),
   childModules = character(0),
   version = list(CBM_defaults = "0.0.1"),
-  spatialExtent = raster::extent(rep(NA_real_, 4)),
+  # spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
   citation = list("citation.bib"),
@@ -220,7 +220,7 @@ sim$species_tr <- species_tr[locale_id <= 1,]
                         alsoExtract = NA,
                         destinationPath = inputPath(sim),
                         fun = NA,
-                        purge = 7
+                        # purge = 7 ##could be useful in the case of a corrupted file
                         )
     ## download file here: https://github.com/cat-cfs/libcbm_py/tree/main/libcbm/resources/cbm_defaults_db
   }
