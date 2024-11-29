@@ -6,12 +6,44 @@ output: pdf_document
 editor_options: 
   chunk_output_type: console
 ---
+
 # CBM_defaults
 
 ## Overview
 
-This module can run independently by running the global script below.
-Its main task is to read-in all the default values in SpaDES-CBM which is akin to the `ArchiveIndex` in CBM-CFS3 runs.
+The primary role of the CBM_defaults module is to read in various tables from the SQLite database file. This includes default disturbance data such as different disturbance types and their IDs, spinup parameters, pool names, and more. The outputs of this module are primarily used in CBM_dataPrep_x and CBM_core.
+
+## List of input objects
+
+| Name          | Class        | Description                                      | Source                                                                            |
+|-----------------|-----------------|--------------------|-------------------|
+| Archive Index | SQL Database | SQLite database file for CFS_CBM3 default tables | <https://github.com/cat-cfs/libcbm_py/tree/main/libcbm/resources/cbm_defaults_db> |
+
+## List of output objects
+
+| Name              | Class      | Description                                   |
+|-------------------|-------------------|----------------------------------|
+| disturbanceMatrix | Data table | Default disturbance data                      |
+| spinupSQL         | Data table | Parameters for CBM_core spinup event          |
+| pooldef           | Character  | Vector of pools                            |
+| poolCount         | Numeric    | Length of pooldef                          |
+| forestTypeID      | Data table | Defines forest types and their respective IDs |
+
+## Module flow
+
+1.  the SQLite database file is downloaded and stored into the user's Inputs folder from GitHub using `prepInputs`.
+2.  Create a connection to the database with `dbConnect`. This creates the archiveIndex object.
+3.  Using `dbGetQuery`, 3 disturbance tables are extracted from archiveIndex. These tables are named matrices2, matrices3, and matrices6. These are merged to create the disturbanceMatrix object.
+4.  spatialUnitsID and spinupParameters are extracted from archiveIndex and merged to create the spinupSQL object.
+5.  pooldef is then extracted, and transformed into a Character class object.
+6.  poolCount is created by defining the length of pooldef.
+7.  forestTypeID is extracted from archiveIndex and a is_sw column is created where any entry where forest_type_id = 1 is `TRUE` and everything else is `FALSE`.
+
+## OLD VERSION
+
+## Overview
+
+This module can run independently by running the global script below. Its main task is to read-in all the default values in SpaDES-CBM which is akin to the `ArchiveIndex` in CBM-CFS3 runs.
 
 ## Usage
 
@@ -81,8 +113,7 @@ Write what is saved.
 
 ### Input data
 
-How to obtain input data, and a description of the data required by the module.
-If `sourceURL` is specified, `downloadData("CBM_defaults", "path/to/modules/dir")` may be sufficient.
+How to obtain input data, and a description of the data required by the module. If `sourceURL` is specified, `downloadData("CBM_defaults", "path/to/modules/dir")` may be sufficient.
 
 ### Output data
 
@@ -91,4 +122,3 @@ Description of the module outputs.
 ## Links to other modules
 
 Describe any anticipated linkages to other modules.
-
