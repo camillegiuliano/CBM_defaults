@@ -39,6 +39,31 @@ The primary role of the CBM_defaults module is to read in various tables from th
 6.  poolCount is created by defining the length of pooldef.
 7.  forestTypeID is extracted from archiveIndex and a is_sw column is created where any entry where forest_type_id = 1 is `TRUE` and everything else is `FALSE`.
 
+## Usage
+This module can run independently by running the global script below. Its main task is to read-in all the default values in SpaDES-CBM which is akin to the `ArchiveIndex` in CBM-CFS3 runs.
+
+```{r module_deafults_usage, eval=FALSE}
+projectPath <- "~/CBM_defaults"
+repos <- c("predictiveecology.r-universe.dev", getOption("repos"))
+if ((packageVersion("SpaDES.project") < "0.1.1" || packageVersion("Require") < "1.0.1.9002") |>
+    tryCatch(error = function(x) TRUE))
+  install.packages(c("SpaDES.project", "Require"), repos = repos)
+
+out <- SpaDES.project::setupProject(
+  paths = list(projectPath = projectPath),
+  
+  options = options(
+    repos = c(repos = repos),
+    reproducible.destinationPath = "inputs"
+  ),
+  modules =  c("PredictiveEcology/CBM_defaults@training"),
+  require = c("SpaDES.core"),
+)
+
+outDefaults <- SpaDES.core::simInitAndSpades2(out)
+```
+
+
 ## OLD VERSION
 
 ## Overview
