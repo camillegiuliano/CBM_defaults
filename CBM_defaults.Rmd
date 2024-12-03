@@ -56,7 +56,7 @@ out <- SpaDES.project::setupProject(
     repos = c(repos = repos),
     reproducible.destinationPath = "inputs"
   ),
-  modules =  c("PredictiveEcology/CBM_defaults@training"),
+  modules =  c("PredictiveEcology/CBM_defaults@main"),
   require = c("SpaDES.core"),
 )
 
