@@ -7,12 +7,11 @@ defineModule(sim, list(
   ),
   childModules = character(0),
   version = list(CBM_defaults = "0.0.1"),
-  # spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "CBM_defaults.Rmd"),
-  reqdPkgs = list("RSQLite", "data.table", "raster", "withr"),
+  reqdPkgs = list("RSQLite", "data.table", "withr"),
 
   parameters = bindrows( ##TODO: these are all default SpaDES parameters, not sure if all are needed here
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description"),
