@@ -220,7 +220,7 @@ sim$species_tr <- species_tr[locale_id <= 1,]
                         alsoExtract = NA,
                         destinationPath = inputPath(sim),
                         fun = NA,
-                        # purge = 7 ##could be useful in the case of a corrupted file
+                        purge = 7 ##could be useful in the case of a corrupted file
                         )
     ## download file here: https://github.com/cat-cfs/libcbm_py/tree/main/libcbm/resources/cbm_defaults_db
   }
