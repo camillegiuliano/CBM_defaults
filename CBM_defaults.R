@@ -74,8 +74,11 @@ doEvent.CBM_defaults <- function(sim, eventTime, eventType, debug = FALSE) {
 ### template initialization
 Init <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
-  #get database
+
+  # Connect to database
   archiveIndex <- dbConnect(dbDriver("SQLite"), sim$dbPath)
+  on.exit(dbDisconnect(archiveIndex))
+
   # dbListTables(archiveIndex)
   # [1] "admin_boundary"                       "admin_boundary_tr"
   # [3] "afforestation_initial_pool"           "afforestation_pre_type"
