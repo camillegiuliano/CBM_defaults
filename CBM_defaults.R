@@ -7,12 +7,11 @@ defineModule(sim, list(
   ),
   childModules = character(0),
   version = list(CBM_defaults = "0.0.1"),
-  # spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "CBM_defaults.Rmd"),
-  reqdPkgs = list("RSQLite", "data.table", "raster", "withr"),
+  reqdPkgs = list("RSQLite", "data.table", "withr"),
 
   parameters = bindrows( ##TODO: these are all default SpaDES parameters, not sure if all are needed here
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description"),
@@ -220,7 +219,7 @@ sim$species_tr <- species_tr[locale_id <= 1,]
                         alsoExtract = NA,
                         destinationPath = inputPath(sim),
                         fun = NA,
-                        # purge = 7 ##could be useful in the case of a corrupted file
+                        purge = 7 ##keep this in as it solves the malformed disc error when running in certain scenarios
                         )
     ## download file here: https://github.com/cat-cfs/libcbm_py/tree/main/libcbm/resources/cbm_defaults_db
   }
