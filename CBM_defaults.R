@@ -13,16 +13,7 @@ defineModule(sim, list(
   documentation = list("README.txt", "CBM_defaults.Rmd"),
   reqdPkgs = list("RSQLite", "data.table", "withr"),
 
-  parameters = bindrows( ##TODO: these are all default SpaDES parameters, not sure if all are needed here
-    #defineParameter("paramName", "paramClass", value, min, max, "parameter description"),
-    defineParameter(".plotInitialTime", "numeric", start(sim), NA, NA,
-                    "Describes the simulation time at which the first plot event should occur."),
-    defineParameter(".plotInterval", "numeric", NA, NA, NA,
-                    "Describes the simulation time interval between plot events."),
-    defineParameter(".saveInitialTime", "numeric", NA, NA, NA,
-                    "Describes the simulation time at which the first save event should occur."),
-    defineParameter(".saveInterval", "numeric", NA, NA, NA,
-                    "This describes the simulation time interval between save events."),
+  parameters = bindrows(
     defineParameter(".useCache", "logical", FALSE, NA, NA,
                     "Should caching of events or module be used?") ##TODO: keep if caching
   ),
@@ -48,34 +39,20 @@ doEvent.CBM_defaults <- function(sim, eventTime, eventType, debug = FALSE) {
   switch(
     eventType,
     init = {
-      ### check for more detailed object dependencies:
-      ### (use `checkObject` or similar)
-
-      # do stuff for this event
       sim <- Init(sim)
-
-      # schedule future event(s)
-      sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "CBM_defaults", "plot")
-      sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, "CBM_defaults", "save")
     },
-    # plot = {
-    #
-    # },
-    # save = {
-    #
-    # },
-    warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
-      "' in module '", current(sim)[1, "moduleName", with = FALSE], "'",
-      sep = ""
-    ))
+    warning(noEventWarning(sim))
   )
   return(invisible(sim))
 }
 ### template initialization
 Init <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
-  #get database
+
+  # Connect to database
   archiveIndex <- dbConnect(dbDriver("SQLite"), sim$dbPath)
+  on.exit(dbDisconnect(archiveIndex))
+
   # dbListTables(archiveIndex)
   # [1] "admin_boundary"                       "admin_boundary_tr"
   # [3] "afforestation_initial_pool"           "afforestation_pre_type"
@@ -205,10 +182,6 @@ sim$species_tr <- species_tr[locale_id <= 1,]
 }
 
 .inputObjects <- function(sim) {
-
-  #cacheTags <- c(currentModule(sim), "function:.inputObjects") ## uncomment this if Cache is being used
-  dPath <- asPath(getOption("reproducible.destinationPath", dataPath(sim)), 1)
-  message(currentModule(sim), ": using dataPath '", dPath, "'.")
 
   # ! ----- EDIT BELOW ----- ! #
 
