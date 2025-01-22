@@ -13,16 +13,7 @@ defineModule(sim, list(
   documentation = list("README.txt", "CBM_defaults.Rmd"),
   reqdPkgs = list("RSQLite", "data.table", "withr"),
 
-  parameters = bindrows( ##TODO: these are all default SpaDES parameters, not sure if all are needed here
-    #defineParameter("paramName", "paramClass", value, min, max, "parameter description"),
-    defineParameter(".plotInitialTime", "numeric", start(sim), NA, NA,
-                    "Describes the simulation time at which the first plot event should occur."),
-    defineParameter(".plotInterval", "numeric", NA, NA, NA,
-                    "Describes the simulation time interval between plot events."),
-    defineParameter(".saveInitialTime", "numeric", NA, NA, NA,
-                    "Describes the simulation time at which the first save event should occur."),
-    defineParameter(".saveInterval", "numeric", NA, NA, NA,
-                    "This describes the simulation time interval between save events."),
+  parameters = bindrows(
     defineParameter(".useCache", "logical", FALSE, NA, NA,
                     "Should caching of events or module be used?") ##TODO: keep if caching
   ),
@@ -48,26 +39,9 @@ doEvent.CBM_defaults <- function(sim, eventTime, eventType, debug = FALSE) {
   switch(
     eventType,
     init = {
-      ### check for more detailed object dependencies:
-      ### (use `checkObject` or similar)
-
-      # do stuff for this event
       sim <- Init(sim)
-
-      # schedule future event(s)
-      sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "CBM_defaults", "plot")
-      sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, "CBM_defaults", "save")
     },
-    # plot = {
-    #
-    # },
-    # save = {
-    #
-    # },
-    warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
-      "' in module '", current(sim)[1, "moduleName", with = FALSE], "'",
-      sep = ""
-    ))
+    warning(noEventWarning(sim))
   )
   return(invisible(sim))
 }
