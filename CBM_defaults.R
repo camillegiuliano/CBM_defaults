@@ -183,10 +183,6 @@ sim$species_tr <- species_tr[locale_id <= 1,]
 
 .inputObjects <- function(sim) {
 
-  #cacheTags <- c(currentModule(sim), "function:.inputObjects") ## uncomment this if Cache is being used
-  dPath <- asPath(getOption("reproducible.destinationPath", dataPath(sim)), 1)
-  message(currentModule(sim), ": using dataPath '", dPath, "'.")
-
   # ! ----- EDIT BELOW ----- ! #
 
   if (!suppliedElsewhere(sim$dbPath)) {
