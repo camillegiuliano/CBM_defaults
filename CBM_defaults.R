@@ -36,13 +36,13 @@ defineModule(sim, list(
       desc = "URL for spuLocator")
   ),
   outputObjects = bindrows(
-    createsOutput(objectName = "species_tr", objectClass = "dataset", desc = NA),
-    createsOutput(objectName = "disturbanceMatrix", objectClass = "dataset", desc = NA),
-    createsOutput(objectName = "cTransfers", objectClass = "dataset", desc = NA),
-    createsOutput(objectName = "spinupSQL", objectClass = "dataset", desc = NA),
-    createsOutput(objectName = "forestTypeId", objectClass = "dataset", desc = NA),
-    createsOutput(objectName = "pooldef", objectClass = "character", desc = NA),
-    createsOutput(objectName = "poolCount", objectClass = "numeric", desc = NA),
+    createsOutput(objectName = "species_tr",        objectClass = "data.table", desc = NA),
+    createsOutput(objectName = "disturbanceMatrix", objectClass = "data.table", desc = NA),
+    createsOutput(objectName = "cTransfers",        objectClass = "data.table", desc = NA),
+    createsOutput(objectName = "spinupSQL",         objectClass = "data.table", desc = NA),
+    createsOutput(objectName = "forestTypeId",      objectClass = "data.table", desc = NA),
+    createsOutput(objectName = "pooldef",           objectClass = "character",  desc = NA),
+    createsOutput(objectName = "poolCount",         objectClass = "numeric",    desc = NA),
     createsOutput(
       objectName = "ecoLocator", objectClass = "sf",
       desc = "Canada's ecozones as polygon features with field 'ecoID' containing ecozone IDs"),

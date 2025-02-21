@@ -38,31 +38,37 @@ test_that("Module runs with defaults", {
   ## Check output 'species_tr' ----
 
   expect_true(!is.null(simTest$species_tr))
+  expect_true(inherits(simTest$species_tr, "data.table"))
 
 
   ## Check output 'disturbanceMatrix' ----
 
   expect_true(!is.null(simTest$disturbanceMatrix))
+  expect_true(inherits(simTest$disturbanceMatrix, "data.table"))
 
 
   ## Check output 'spinupSQL' ----
 
   expect_true(!is.null(simTest$spinupSQL))
+  expect_true(inherits(simTest$spinupSQL, "data.table"))
 
 
   ## Check output 'forestTypeId' ----
 
   expect_true(!is.null(simTest$forestTypeId))
+  expect_true(inherits(simTest$forestTypeId, "data.table"))
 
 
   ## Check output 'pooldef' ----
 
   expect_true(!is.null(simTest$pooldef))
+  expect_true(inherits(simTest$pooldef, "character"))
 
 
   ## Check output 'poolCount' ----
 
   expect_true(!is.null(simTest$poolCount))
+  expect_true(inherits(simTest$poolCount, "numeric") | inherits(simTest$poolCount, "integer"))
 
 
   ## Check output 'ecoLocator' ----
