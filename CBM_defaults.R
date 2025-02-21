@@ -286,7 +286,7 @@ sim$species_tr <- species_tr[locale_id <= 1,]
       )
 
       # Make spuID field
-      sim$spuID <- cbind(spuID = sim$spuLocator$spu_id, sim$spuLocator)
+      sim$spuLocator <- cbind(spuID = sim$spuLocator$spu_id, sim$spuLocator)
 
       sf::st_agr(sim$spuLocator) <- "constant"
     }
