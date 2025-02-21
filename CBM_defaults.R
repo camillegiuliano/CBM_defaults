@@ -1,7 +1,7 @@
 defineModule(sim, list(
   name = "CBM_defaults",
-  description = "Reads in all the default values for CBM-CFS3 for Canada",
-  keywords = c("CBM-CFS3", "forest carbon","Canada parameters"),
+  description = "Provides CBM-CFS3 defaults for Canada",
+  keywords = c("CBM-CFS3", "forest carbon", "Canada parameters"),
   authors = c(
     person("Celine", "Boisvenue", email = "celine.boisvenue@nrcan-rncan.gc.ca", role = c("aut", "cre"))
   ),
@@ -11,18 +11,29 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "CBM_defaults.Rmd"),
-  reqdPkgs = list("RSQLite", "data.table", "withr"),
-
+  reqdPkgs = list("RSQLite", "data.table", "sf"),
   parameters = bindrows(
-    defineParameter(".useCache", "logical", FALSE, NA, NA,
-                    "Should caching of events or module be used?") ##TODO: keep if caching
+    defineParameter(".useCache", "logical", FALSE, NA, NA, NA)
   ),
-
   inputObjects = bindrows(
     expectsInput(objectName = "dbPath", objectClass = "character", desc = NA,
                  sourceURL = "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_defaults_db/cbm_defaults_v1.2.8340.362.db"),
     expectsInput(objectName = "dbPathURL", objectClass = "character",
                  desc = "URL for dbPath"),
+    expectsInput(
+      objectName = "ecoLocator", objectClass = "sf",
+      sourceURL = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip",
+      desc = "Canada's ecozones as polygon features"),
+    expectsInput(
+      objectName = "ecoLocatorURL", objectClass = "character",
+      desc = "URL for ecoLocator"),
+    expectsInput(
+      objectName = "spuLocator", objectClass = "sf|SpatRaster",
+      sourceURL = "https://drive.google.com/file/d/1D3O0Uj-s_QEgMW7_X-NhVsEZdJ29FBed",
+      desc = "Canada's spatial units as polygon features"),
+    expectsInput(
+      objectName = "spuLocatorURL", objectClass = "character",
+      desc = "URL for spuLocator")
   ),
   outputObjects = bindrows(
     createsOutput(objectName = "species_tr", objectClass = "dataset", desc = NA),
@@ -31,7 +42,13 @@ defineModule(sim, list(
     createsOutput(objectName = "spinupSQL", objectClass = "dataset", desc = NA),
     createsOutput(objectName = "forestTypeId", objectClass = "dataset", desc = NA),
     createsOutput(objectName = "pooldef", objectClass = "character", desc = NA),
-    createsOutput(objectName = "poolCount", objectClass = "numeric", desc = NA)
+    createsOutput(objectName = "poolCount", objectClass = "numeric", desc = NA),
+    createsOutput(
+      objectName = "ecoLocator", objectClass = "sf",
+      desc = "Canada's ecozones as polygon features with field 'ecoID' containing ecozone IDs"),
+    createsOutput(
+      objectName = "spuLocator", objectClass = "sf",
+      desc = "Canada's spatial units as polygon features with field 'spuID' containing spatial unit IDs")
   )
 ))
 
@@ -45,9 +62,10 @@ doEvent.CBM_defaults <- function(sim, eventTime, eventType, debug = FALSE) {
   )
   return(invisible(sim))
 }
-### template initialization
+
 Init <- function(sim) {
-  # # ! ----- EDIT BELOW ----- ! #
+
+  ## Read the CBM-CFS3 Database ----
 
   # Connect to database
   archiveIndex <- dbConnect(dbDriver("SQLite"), sim$dbPath)
@@ -183,20 +201,98 @@ sim$species_tr <- species_tr[locale_id <= 1,]
 
 .inputObjects <- function(sim) {
 
-  # ! ----- EDIT BELOW ----- ! #
+  # CBM-CFS3 Database
+  if (!suppliedElsewhere("dbPath", sim)){
+    if (suppliedElsewhere("dbPathURL", sim)){
 
-  if (!suppliedElsewhere(sim$dbPath)) {
-   sim$dbPathURL <- extractURL("dbPath")
-   sim$dbPath <- prepInputs(url = sim$dbPathURL,
-                        targetFile = "cbm_defaults_v1.2.8340.362.db",
-                        alsoExtract = NA,
-                        destinationPath = inputPath(sim),
-                        fun = NA,
-                        purge = 7 ##keep this in as it solves the malformed disc error when running in certain scenarios
-                        )
-    ## download file here: https://github.com/cat-cfs/libcbm_py/tree/main/libcbm/resources/cbm_defaults_db
+      sim$dbPath <- prepInputs(
+        destinationPath = inputPath(sim),
+        url = sim$dbPathURL
+      )
+
+    }else{
+
+      sim$dbPath <- prepInputs(
+        destinationPath = inputPath(sim),
+        url         = extractURL("dbPath"),
+        targetFile  = "cbm_defaults_v1.2.8340.362.db",
+        fun         = NA,
+        purge = 7 ##keep this in as it solves the malformed disc error when running in certain scenarios
+      )
+    }
   }
 
-  # ! ----- STOP EDITING ----- ! #
+  # Canada ecozones
+  if (!suppliedElsewhere("ecoLocator", sim)){
+
+    if (suppliedElsewhere("ecoLocatorURL", sim) &
+        !identical(sim$ecoLocatorURL, extractURL("ecoLocator"))){
+
+      sim$ecoLocator <- prepInputs(
+        destinationPath = inputPath(sim),
+        url = sim$ecoLocatorURL
+      )
+
+    }else{
+
+      ## 2024-12-04 NOTE:
+      ## Multiple users had issues downloading and extracting this file via prepInputs.
+      ## Downloading the ZIP directly and saving it in the inputs directory works OK.
+      sim$ecoLocator <- tryCatch(
+
+        prepInputs(
+          destinationPath = inputPath(sim),
+          url         = extractURL("ecoLocator"),
+          filename1   = "ecozone_shp.zip",
+          targetFile  = "ecozones.shp",
+          alsoExtract = "similar",
+          fun         = sf::st_read(targetFile, quiet = TRUE)
+        ),
+
+        error = function(e) stop(
+          "Canada ecozones Shapefile failed be downloaded and extracted:\n", e$message, "\n\n",
+          "If this error persists, download the ZIP file directly and save it to the inputs directory.",
+          "\nDownload URL: ", extractURL("ecoLocator"),
+          "\nInputs directory: ", normalizePath(inputPath(sim), winslash = "/"),
+          call. = FALSE))
+
+      # Make ecoID field
+      sim$ecoLocator <- cbind(ecoID = sim$ecoLocator$ECOZONE, sim$ecoLocator)
+
+      sf::st_agr(sim$ecoLocator) <- "constant"
+    }
+  }
+
+  # Canada spatial units
+  if (!suppliedElsewhere("spuLocator", sim)){
+
+    if (suppliedElsewhere("spuLocatorURL", sim) &
+        !identical(sim$spuLocatorURL, extractURL("spuLocator"))){
+
+      sim$spuLocator <- prepInputs(
+        destinationPath = inputPath(sim),
+        url = sim$spuLocatorURL
+      )
+
+    }else{
+
+      sim$spuLocator <- prepInputs(
+        destinationPath = inputPath(sim),
+        url         = extractURL("spuLocator"),
+        filename1   = "spUnit_Locator.zip",
+        targetFile  = "spUnit_Locator.shp",
+        alsoExtract = "similar",
+        fun         = sf::st_read(targetFile, quiet = TRUE)
+      )
+
+      # Make spuID field
+      sim$spuID <- cbind(spuID = sim$spuLocator$spu_id, sim$spuLocator)
+
+      sf::st_agr(sim$spuLocator) <- "constant"
+    }
+  }
+
+  # Return sim
   return(invisible(sim))
+
 }
