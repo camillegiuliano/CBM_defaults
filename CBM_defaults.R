@@ -20,6 +20,11 @@ defineModule(sim, list(
                  sourceURL = "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_defaults_db/cbm_defaults_v1.2.8340.362.db"),
     expectsInput(objectName = "dbPathURL", objectClass = "character",
                  desc = "URL for dbPath"),
+    expectsInput(objectName = "dMatrixAssociation", objectClass = "data.frame", desc = NA,
+                 sourceURL = "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_exn/disturbance_matrix_association.csv"),
+    expectsInput(
+      objectName = "dMatrixAssociationURL", objectClass = "character",
+      desc = "URL for dMatrixAssociation"),
     expectsInput(
       objectName = "ecoLocator", objectClass = "sf",
       sourceURL = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip",
@@ -106,10 +111,6 @@ species_tr <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM species_tr")
 sim$species_tr <- species_tr[locale_id <= 1,]
 
   #extract disturbance tables
-  # This table, matrices2, has only spatial_unit_id disturbance_type_id
-  # disturbance_matrix_id
-  matrices2 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_association"))
-
   # This table, matrices3, has all the names associated with
   # disturbance_matrix_id
   matrices3 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"))
@@ -141,18 +142,16 @@ sim$species_tr <- species_tr[locale_id <= 1,]
   # only keep one copy in English.
   matrices6 <- matrices6[locale_id <= 1,]
   # only keep the colums we need, disturbance_type_id and its associated name.
-  matrices6 <- matrices6[,.(disturbance_type_id, name)]
+  matrices6 <- matrices6[,.(disturbance_type_id, name, description)]
   # $disturbanceMatrix links together spatial_unit_id disturbance_type_id
-  # disturbance_matrix_id, the disturbance names and descriptions. The difference between the
-  # names and descriptions in matrices3 and matrices6 is that
+  # disturbance_matrix_id, the disturbance names and descriptions.
+  # The difference between the names and descriptions in matrices3 and matrices6 is that
   # those in matrices3 are linked to the National Inventory Report used by the
   # CAT for reporting (there are 1008 rows). Names in matrices6 are simpler
   # disturbance description (there are 172 rows).
   # names and descriptions in matrices3 are assocaited to disturbance_matrix_id, whereas matrices6 is associated to disturbance_type_id
-
-  disturbanceMatrix <- matrices2[matrices6, on = .(disturbance_type_id = disturbance_type_id), allow.cartesian = TRUE]
-  sim$disturbanceMatrix <- disturbanceMatrix[matrices3, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian = TRUE]
-
+  disturbanceMatrix <- sim$dMatrixAssociation[matrices6, on = .(disturbance_type_id = disturbance_type_id), allow.cartesian = TRUE]
+  sim$disturbanceMatrix <- disturbanceMatrix
 
   # This version has French, Spanish and Russian disturbance translations removed.
   # Get location and mean_annual_temperature for each spatial_unit, along with
@@ -193,7 +192,6 @@ sim$species_tr <- species_tr[locale_id <= 1,]
   #find forest_type_id
   forestTypeId <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM forest_type_tr"))
   sim$forestTypeId <- forestTypeId[, .(is_sw = any(forest_type_id == 1)), .(name, locale_id, forest_type_id)]
-
   # ! ----- STOP EDITING ----- ! #
 
   return(invisible(sim))
@@ -220,6 +218,18 @@ sim$species_tr <- species_tr[locale_id <= 1,]
         purge = 7 ##keep this in as it solves the malformed disc error when running in certain scenarios
       )
     }
+  }
+
+  # Disturbance Matrix Association
+  if (!suppliedElsewhere("dMatrixAssociation", sim)) {
+    if (!suppliedElsewhere("dMatrixAssociationURL", sim)) {
+      sim$dMatrixAssociationURL <- extractURL("dMatrixAssociation")
+    }
+    sim$dMatrixAssociation <- prepInputs(url = sim$dMatrixAssociationURL,
+                               targetFile = "disturbance_matrix_association.csv",
+                               destinationPath = inputPath(sim),
+                               fun = fread
+                               )
   }
 
   # Canada ecozones
