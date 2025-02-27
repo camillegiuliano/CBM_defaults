@@ -128,21 +128,15 @@ sim$species_tr <- species_tr[locale_id <= 1,]
   matrices6 <- matrices6[,.(disturbance_type_id, name, description)]
   # $disturbanceMatrix links together spatial_unit_id disturbance_type_id
   # disturbance_matrix_id, the disturbance names and descriptions.
-  # The difference between the names and descriptions in matrices3 and matrices6 is that
-  # those in matrices3 are linked to the National Inventory Report used by the
-  # CAT for reporting (there are 1008 rows). Names in matrices6 are simpler
-  # disturbance description (there are 172 rows).
-  # names and descriptions in matrices3 are assocaited to disturbance_matrix_id, whereas matrices6 is associated to disturbance_type_id
   disturbanceMatrix <- sim$dMatrixAssociation[matrices6, on = .(disturbance_type_id = disturbance_type_id), allow.cartesian = TRUE]
   sim$disturbanceMatrix <- disturbanceMatrix
 
   # here we want to match sim$dMatrixValue with disturbanceMatrix so that sim$CTransfers has disturbance names.
-  # CTransfers will have to be subset to the regions' spatial_unit_id in CBM_dataPrep.
+  # CTransfers will have to be subset to the regions' spatial_unit_id.
   disturbanceNames <- unique(disturbanceMatrix[,.(disturbance_type_id, disturbance_matrix_id, name, description, spatial_unit_id)])
   cTransfers <- sim$dMatrixValue[disturbanceNames, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian=TRUE]
   sim$cTransfers <- cTransfers
 
-  # This version has French, Spanish and Russian disturbance translations removed.
   # Get location and mean_annual_temperature for each spatial_unit, along with
   # other spinup parameters. These are needed to create sim$level3DT in
   # CBM_dataPrep_XX, which are in turn used in the CBM_core to create the
