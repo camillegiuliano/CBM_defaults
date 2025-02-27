@@ -22,9 +22,12 @@ defineModule(sim, list(
                  desc = "URL for dbPath"),
     expectsInput(objectName = "dMatrixAssociation", objectClass = "data.frame", desc = NA,
                  sourceURL = "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_exn/disturbance_matrix_association.csv"),
-    expectsInput(
-      objectName = "dMatrixAssociationURL", objectClass = "character",
+    expectsInput( objectName = "dMatrixAssociationURL", objectClass = "character",
       desc = "URL for dMatrixAssociation"),
+    expectsInput(objectName = "dMatrixValue", objectClass = "data.frame", desc = NA,
+                 sourceURL = "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_exn/disturbance_matrix_value.csv"),
+    expectsInput( objectName = "dMatrixValueURL", objectClass = "character",
+                  desc = "URL for dMatrixValue"),
     expectsInput(
       objectName = "ecoLocator", objectClass = "sf",
       sourceURL = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip",
@@ -110,26 +113,6 @@ species_tr <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM species_tr")
 #keep english only
 sim$species_tr <- species_tr[locale_id <= 1,]
 
-  #extract disturbance tables
-  # This table, matrices3, has all the names associated with
-  # disturbance_matrix_id
-  matrices3 <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_tr"))
-  # matrices3 has French, Spanish and Russian disturbance translations, here we
-  # only keep one copy in English.
-  matrices3 <- matrices3[locale_id <= 1,]
-  # only keep the colums we need, disturbance_matrix_id and its associated description
-  matrices3 <- matrices3[,.(disturbance_matrix_id, description)]
-
-  # This table, matrices4, links disturbance_matrix_id to the proportion of
-  # carbon transferred from source_pool_id sink_pool_id. source_pool_id
-  # sink_pool_id are numbered according to this table:
-  # pools <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM pool_tr"))
-  matrices4 <-  as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM disturbance_matrix_value"))
-
-  # here we merge matrices3 and 4 with disturbance_matrix_id to add matrix names to the carbon transfer proportions of matrices4
-  cTransfers <- matrices4[matrices3, on = .(disturbance_matrix_id = disturbance_matrix_id)]
-  sim$cTransfers <- cTransfers[,.(disturbance_matrix_id, source_pool_id,
-                                  sink_pool_id, proportion)]
   # This table, matrices6, has all the names associated with
   # disturbance_type_id. disturbance_type_id, along with spatial_unit_id and a
   # sw_hw flag is how libcbm connects (internally) to the proportions. In the
@@ -152,6 +135,12 @@ sim$species_tr <- species_tr[locale_id <= 1,]
   # names and descriptions in matrices3 are assocaited to disturbance_matrix_id, whereas matrices6 is associated to disturbance_type_id
   disturbanceMatrix <- sim$dMatrixAssociation[matrices6, on = .(disturbance_type_id = disturbance_type_id), allow.cartesian = TRUE]
   sim$disturbanceMatrix <- disturbanceMatrix
+
+  # here we want to match sim$dMatrixValue with disturbanceMatrix so that sim$CTransfers has disturbance names.
+  # CTransfers will have to be subset to the regions' spatial_unit_id in CBM_dataPrep.
+  disturbanceNames <- unique(disturbanceMatrix[,.(disturbance_type_id, disturbance_matrix_id, name, description, spatial_unit_id)])
+  cTransfers <- sim$dMatrixValue[disturbanceNames, on = .(disturbance_matrix_id = disturbance_matrix_id), allow.cartesian=TRUE]
+  sim$cTransfers <- cTransfers
 
   # This version has French, Spanish and Russian disturbance translations removed.
   # Get location and mean_annual_temperature for each spatial_unit, along with
@@ -230,6 +219,18 @@ sim$species_tr <- species_tr[locale_id <= 1,]
                                destinationPath = inputPath(sim),
                                fun = fread
                                )
+  }
+
+  #Disturbance Matrix Value
+  if (!suppliedElsewhere("dMatrixValue", sim)) {
+    if (!suppliedElsewhere("dMatrixValueURL", sim)) {
+      sim$dMatrixValueURL <- extractURL("dMatrixValue")
+    }
+    sim$dMatrixValue <- prepInputs(url = sim$dMatrixValueURL,
+                                         targetFile = "disturbance_matrix_value.csv",
+                                         destinationPath = inputPath(sim),
+                                         fun = fread
+    )
   }
 
   # Canada ecozones
