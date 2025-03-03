@@ -246,7 +246,7 @@ sim$species_tr <- species_tr[locale_id <= 1,]
           filename1   = "ecozone_shp.zip",
           targetFile  = "ecozones.shp",
           alsoExtract = "similar",
-          fun         = sf::st_read(targetFile, quiet = TRUE)
+          fun         = sf::st_read(targetFile, agr = "constant", quiet = TRUE)
         ),
 
         error = function(e) stop(
@@ -258,8 +258,6 @@ sim$species_tr <- species_tr[locale_id <= 1,]
 
       # Make ecoID field
       sim$ecoLocator <- cbind(ecoID = sim$ecoLocator$ECOZONE, sim$ecoLocator)
-
-      sf::st_agr(sim$ecoLocator) <- "constant"
     }
   }
 
@@ -282,13 +280,11 @@ sim$species_tr <- species_tr[locale_id <= 1,]
         filename1   = "spUnit_Locator.zip",
         targetFile  = "spUnit_Locator.shp",
         alsoExtract = "similar",
-        fun         = sf::st_read(targetFile, quiet = TRUE)
+        fun         = sf::st_read(targetFile, agr = "constant", quiet = TRUE)
       )
 
       # Make spuID field
       sim$spuLocator <- cbind(spuID = sim$spuLocator$spu_id, sim$spuLocator)
-
-      sf::st_agr(sim$spuLocator) <- "constant"
     }
   }
 
