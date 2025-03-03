@@ -212,12 +212,16 @@ sim$species_tr <- species_tr[locale_id <= 1,]
 
     }else{
 
-      sim$dbPath <- prepInputs(
+      sim$dbPath <- file.path(inputPath(sim), "cbm_defaults_v1.2.8340.362.db")
+
+      prepInputs(
         destinationPath = inputPath(sim),
         url         = extractURL("dbPath"),
-        targetFile  = "cbm_defaults_v1.2.8340.362.db",
-        fun         = NA,
-        purge = 7 ##keep this in as it solves the malformed disc error when running in certain scenarios
+        targetFile  = basename(sim$dbPath),
+        dlFun       = if (!file.exists(sim$dbPath)){
+          download.file(extractURL("dbPath"), sim$dbPath, mode = "wb", quiet = TRUE)
+        },
+        fun = NA
       )
     }
   }
