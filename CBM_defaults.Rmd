@@ -1,7 +1,7 @@
 ---
 title: "CBM_defaults"
 author: ""
-date: "19 January 2018"
+date: "March 4, 2025"
 output: pdf_document
 editor_options: 
   chunk_output_type: console
@@ -12,7 +12,11 @@ editor_options:
 
 ## Overview
 
-The primary role of the CBM_defaults module is to read in various tables from the SQLite database file. This includes default disturbance data such as different disturbance types and their IDs, spinup parameters, pool names, and more. The outputs of this module are primarily used in CBM_dataPrep_x and CBM_core.
+[CBM_defaults](https://github.com/PredictiveEcology/CBM_defaults.git) provides simulations with default parameter values for the managed forests of Canada, akin to the Archive Index in the CBM-CFS3 documentation. 
+Most parameters are read in from various tables from a SQLite database file (link below). 
+Some defaults are modified from CBM-CFS3 to accommodate the capacity for a more flexible representation of vegetation dynamics enable by the `libcbm` Python functions.
+There are available [here](https://github.com/cat-cfs/libcbm_py/tree/main/libcbm/resources/cbm_exn).
+Defaults for the managed forests of Canada include disturbance data such as different disturbance types and their IDs, spinup parameters, pool names, and more. The outputs of this module are primarily used *CBM_dataPrep_SK* and *CBM_core*.
 
 ## List of input objects
 
@@ -24,24 +28,27 @@ The primary role of the CBM_defaults module is to read in various tables from th
 
 | Name              | Class      | Description                                   |
 |-------------------|-------------------|----------------------------------|
+| species_tr        | Data table | Default disturbance data                      |
 | disturbanceMatrix | Data table | Default disturbance data                      |
+| cTransfers        |
 | spinupSQL         | Data table | Parameters for CBM_core spinup event          |
 | pooldef           | Character  | Vector of pools                            |
-| poolCount         | Numeric    | Length of pooldef                          |
-| forestTypeID      | Data table | Defines forest types and their respective IDs |
 
 ## Module flow
 
-1.  the SQLite database file is downloaded and stored into the user's Inputs folder from GitHub using `prepInputs`.
-2.  Create a connection to the database with `dbConnect`. This creates the archiveIndex object.
-3.  Using `dbGetQuery`, 3 disturbance tables are extracted from archiveIndex. These tables are named matrices2, matrices3, and matrices6. These are merged to create the disturbanceMatrix object.
-4.  spatialUnitsID and spinupParameters are extracted from archiveIndex and merged to create the spinupSQL object.
-5.  pooldef is then extracted, and transformed into a Character class object.
-6.  poolCount is created by defining the length of pooldef.
-7.  forestTypeID is extracted from archiveIndex and a is_sw column is created where any entry where forest_type_id = 1 is `TRUE` and everything else is `FALSE`.
+1.  The SQLite database, and a selection of the `cbm_exn` resource files are downloaded and stored into the user's Inputs folder from GitHub using the `reproducible::prepInputs` function, a useful tool in the `SpaDES` toolkit.
+2.  Parameters necessary for *spadesCBM* simulations are extracted from the downloaded files. Each of these are saved as objects in the `simList` (see list of output objects above).
+3.  The `species_tr` object is created to match a species name to the provided growth curve.
+4.  The `disturbanceMatrix` and `cTransfers` objects help identify which carbon transfers matches the provided disturbances as it matches the transfer matrix IDs and the proportions transferred to disturbance names.
+5.  Parameters for the `spinup` event in the `CBM_core` modules are assembled in the spinupSQL object.
+6.  `pooldef` gives the names of each carbon pool that exists in CBM.
+7.  Objects that narrow the parameter selection for the study area are `spuLocator` and `ecolocator` 
+## Background
+
+This example uses default parameters that were created for use in CBM-CFS3. Few of these parameters have source references. The ones who do are outline in the [Operational-scale Carbon Budget Model of the Canadian Forest Sector (CBM-CFS3) version 1.2: user’s guide](https://osdp-psdo.canada.ca/dp/en/search/metadata/NRCAN-CFS-1-7570539d-a457-43ef-9215-584ad612f409). *CBM_defaults* brings the parameters to an R-environment in which users can change and test new parameters in CBM simulations easily.
 
 ## Usage
-This module can run independently by running the global script below. Its main task is to read-in all the default values in SpaDES-CBM which is akin to the `ArchiveIndex` in CBM-CFS3 runs.
+This module can run independently by running the global script below. It provides default parameters for all managed forests of Canada, a transparent view of these parameters and the means to change and test new parameters in CBM simulations. 
 
 ```{r module_deafults_usage, eval=FALSE}
 projectPath <- "~/CBM_defaults"
