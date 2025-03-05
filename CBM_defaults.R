@@ -44,13 +44,16 @@ defineModule(sim, list(
       desc = "URL for spuLocator")
   ),
   outputObjects = bindrows(
-    createsOutput(objectName = "species_tr",        objectClass = "data.table", desc = NA),
-    createsOutput(objectName = "disturbanceMatrix", objectClass = "data.table", desc = NA),
-    createsOutput(objectName = "cTransfers",        objectClass = "data.table", desc = NA),
-    createsOutput(objectName = "spinupSQL",         objectClass = "data.table", desc = NA),
-    createsOutput(objectName = "forestTypeId",      objectClass = "data.table", desc = NA),
-    createsOutput(objectName = "pooldef",           objectClass = "character",  desc = NA),
-    createsOutput(objectName = "poolCount",         objectClass = "numeric",    desc = NA),
+    createsOutput(objectName = "species_tr",        objectClass = "data.table",
+                  desc = "Species table with names and associated species id"),
+    createsOutput(objectName = "disturbanceMatrix", objectClass = "data.table",
+                  desc = "Disturbance table with disturbance names associated with disturbance_matrix_id, disturbance_type_id"),
+    createsOutput(objectName = "cTransfers",        objectClass = "data.table",
+                  desc = "Carbon transfer values table with associated disturbance names and IDs"),
+    createsOutput(objectName = "spinupSQL",         objectClass = "data.table",
+                  desc = "Table containing many necesary spinup parameters used in CBM_core"),
+    createsOutput(objectName = "pooldef",           objectClass = "character",
+                  desc = "Vector of names for each of the carbon pools"),
     createsOutput(
       objectName = "ecoLocator", objectClass = "sf",
       desc = "Canada's ecozones as polygon features with field 'ecoID' containing ecozone IDs"),
@@ -147,34 +150,13 @@ sim$species_tr <- species_tr[locale_id <= 1,]
   sim$spinupSQL <- spatialUnitIds[spinupParameter, on = .(spinup_parameter_id = id)]
 
   #extract for pooldef
-  ##TODO pooldef from the SQL database is OUTDATED. Need to coordinate with
-  ##Scott to see if the SQLight can be modified and to identify where in libcbm
-  ##scripts poolDef is defined (probably in cbm_exn_get_default_parameters()).
-  ##Once fixed/identified, add info and this back in
-  ##and remove the hard code below.
-  # pooldef <- dbGetQuery(archiveIndex, "SELECT * FROM pool")
-  # sim$pooldef <- as.character(pooldef$code)
+  pooldefURL <- "https://raw.githubusercontent.com/cat-cfs/libcbm_py/refs/heads/main/libcbm/resources/cbm_exn/pools.json"
+  pooldef <- prepInputs(url = pooldefURL,
+                        targetFile = "pools.json",
+                        destinationPath = inputPath(sim),
+                        fun = fread)
+  pooldef <- as.character(pooldef$V1)
 
-  sim$pooldef = c(
-    "Input","Merch", "Foliage", "Other", "CoarseRoots", "FineRoots",
-    "AboveGroundVeryFastSoil", "BelowGroundVeryFastSoil",
-    "AboveGroundFastSoil", "BelowGroundFastSoil", "MediumSoil",
-    "AboveGroundSlowSoil", "BelowGroundSlowSoil", "StemSnag",
-    "BranchSnag", "CO2", "CH4", "CO", "NO2", "Products")
-  ##TODO $poolCount is not needed anymore as a spinup_parameter with the
-  ##migration to libcbm. Once the last module has transitioned
-  ##(CBM_dataPrep_XX), we can remove this from CBM_defaults.
-  sim$poolCount <- length(sim$pooldef)
-
-  ##TODO right now (SK examples) forest_type_id is provided by the user via
-  ##gcMetaEg.csv. But the user could provide the forest type via the name in the
-  ##"name" column below. sw_hw identification is important as it links to the
-  ##carbon transfer proportion matrices. Right now, CBM_vol2biomass deals with
-  ##forestType on lines 606-616, and CBM_core from line 313-319. We need a more
-  ##generalized option for users that uses the table below.
-  #find forest_type_id
-  forestTypeId <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM forest_type_tr"))
-  sim$forestTypeId <- forestTypeId[, .(is_sw = any(forest_type_id == 1)), .(name, locale_id, forest_type_id)]
   # ! ----- STOP EDITING ----- ! #
 
   return(invisible(sim))
@@ -230,6 +212,7 @@ sim$species_tr <- species_tr[locale_id <= 1,]
                                          fun = fread
     )
   }
+
 
   # Canada ecozones
   if (!suppliedElsewhere("ecoLocator", sim)){
