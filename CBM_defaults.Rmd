@@ -10,7 +10,7 @@ editor_options:
 ```
 # CBM_defaults
 
-::: {.callout-important}
+:::{.rmdimportant}
 This documentation is work in progress. Potential discrepancies and omissions may exist for the time being. If you find any regarding this module, contact us [here]("https://github.com/PredictiveEcology/CBM_defaults/issues").
 :::
 
