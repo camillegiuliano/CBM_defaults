@@ -10,6 +10,10 @@ editor_options:
 ```
 # CBM_defaults
 
+::: {.callout-important}
+This documentation is work in progress. Potential discrepancies and omissions may exist for the time being. If you find any regarding this module, contact us [here]("https://github.com/PredictiveEcology/CBM_defaults/issues").
+:::
+
 ## Overview
 
 [CBM_defaults](https://github.com/PredictiveEcology/CBM_defaults.git) reads in default parameters for the managed forest of Canada. In *SpaDES-speak*, it has one event (`init`). On its own, this module provides R-based access to all defaults **CBM** parametersfor the managed forests of Canada. As part of [spadesCBM](https://github.com/PredictiveEcology/spadesCBM.git), it provides simulations with default parameter values for the managed forests of Canada, akin to the Archive Index in the CBM-CFS3 documentation. Most parameters are read in from an SQLite database (link below), with some defaults, modified from CBM-CFS3 to accommodate the capacity for a more flexible representation of vegetation dynamics enable by the `libcbm` Python functions used, available [here](https://github.com/cat-cfs/libcbm_py/tree/main/libcbm/resources/cbm_exn). Defaults for the managed forests of Canada include disturbance data such as different disturbance types and their IDs, spinup parameters, pool names, and more. The outputs of this module are used by [CBM_dataPrep_SK](https://github.com/PredictiveEcology/CBM_dataPrep_SK.git) and [CBM_core](https://github.com/PredictiveEcology/CBM_core.git) in [spadesCBM](https://github.com/PredictiveEcology/spadesCBM.git) simulations.
