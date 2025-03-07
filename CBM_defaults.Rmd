@@ -42,7 +42,7 @@ editor_options:
 | species_tr        | Data table | Default species data             |
 | disturbanceMatrix | Data table | Default disturbance data             |
 | cTransfers        | Data table | Default disturbance data             |
-| spinupSQL         | Data table | Parameters for CBM_core spinup event |
+| spinupSQL         | Data table | Parameters for [CBM_core](https://github.com/PredictiveEcology/CBM_core.git) spinup event |
 | pooldef           | Character  | Vector of pools                      |
 | ecoLocator | Shapefile | Canada's ecozone as polygon features with ecozone IDs |
 | spuLocator | Shapefile | Canada's spatial units as polygon features with spatial unit IDs |
