@@ -158,7 +158,7 @@ sim$species_tr <- species_tr[locale_id <= 1,]
                         targetFile = "pools.json",
                         destinationPath = inputPath(sim),
                         fun = fread)
-  pooldef <- as.character(pooldef$V1)
+  sim$pooldef <- as.character(pooldef$V1)
 
   # ! ----- STOP EDITING ----- ! #
 
