@@ -36,7 +36,7 @@ This documentation is work in progress. Potential discrepancies and omissions ma
 - The `species_tr` object is created to match a species name to the user-provided growth curve.
 - The `disturbanceMatrix` and `cTransfers` objects help identify which carbon transfers matches the provided disturbances as it matches the transfer matrix IDs and the proportions transferred to disturbance names.
 - Parameters for the `spinup` event in the [CBM_core](https://github.com/PredictiveEcology/CBM_core.git) modules are assembled in the spinupSQL object.
-- `pooldef` gives the names of each carbon pool that exists in CBM (LINK TO THE POOLS IN index.Rmd).
+- `pooldef` gives the names of each [carbon pool](https://predictiveecology.github.io/spadesCBM/index.html#pools) that exists in CBM.
 - Objects that narrow the parameter selection to the study area are `spuLocator` and `ecolocator` 
 
 ## List of output objects
