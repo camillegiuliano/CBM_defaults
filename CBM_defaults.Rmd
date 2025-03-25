@@ -18,7 +18,11 @@ This documentation is work in progress. Potential discrepancies and omissions ma
 
 [CBM_defaults](https://github.com/PredictiveEcology/CBM_defaults.git) reads in default parameters for the managed forest of Canada. In *SpaDES-speak*, it has one event (`init`). On its own, this module provides R-based access to all defaults **CBM** parameters for the managed forests of Canada. As part of [spadesCBM](https://github.com/PredictiveEcology/spadesCBM.git), it provides simulations with default parameter values for the managed forests of Canada, akin to the Archive Index in the CBM-CFS3 documentation. Most parameters are read in from an SQLite database (link below), with some defaults, modified from CBM-CFS3 to accommodate a more flexible representation of vegetation dynamics enable by the `libcbm` Python functions used, available [here](https://github.com/cat-cfs/libcbm_py/tree/main/libcbm/resources/cbm_exn). Defaults for the managed forests of Canada include disturbance data such as different disturbance types and their IDs, spinup parameters, pool names, fire return intervals for each ecozone (DEFINE) and more. The outputs of this module are used by [CBM_dataPrep_SK](https://github.com/PredictiveEcology/CBM_dataPrep_SK.git) and [CBM_core](https://github.com/PredictiveEcology/CBM_core.git) in [spadesCBM](https://github.com/PredictiveEcology/spadesCBM.git) simulations.
 
-## List of input objects
+## Background
+
+This example uses default parameters that were created for use in CBM-CFS3. Few of these parameters have source references. The ones who do are outline in the [Operational-scale Carbon Budget Model of the Canadian Forest Sector (CBM-CFS3) version 1.2: user’s guide](https://osdp-psdo.canada.ca/dp/en/search/metadata/NRCAN-CFS-1-7570539d-a457-43ef-9215-584ad612f409). [CBM_defaults](https://github.com/PredictiveEcology/CBM_defaults.git) brings the parameters to an R-environment, for easy user-access and modifications.
+
+## Inputs
 
 | Name | Class | Description | Source |
 |------------------|------------------|-------------------|------------------|
@@ -39,7 +43,7 @@ This documentation is work in progress. Potential discrepancies and omissions ma
 - `pooldef` gives the names of each [carbon pool](https://predictiveecology.github.io/spadesCBM/index.html#pools) that exists in CBM.
 - Objects that narrow the parameter selection to the study area are `spuLocator` and `ecolocator` 
 
-## List of output objects
+## Outputs
 
 | Name              | Class      | Description                          |
 |-------------------|------------|--------------------------------------|
@@ -51,9 +55,6 @@ This documentation is work in progress. Potential discrepancies and omissions ma
 | ecoLocator | Shapefile | Canada's ecozone as polygon features with ecozone IDs |
 | spuLocator | Shapefile | Canada's spatial units as polygon features with spatial unit IDs |
 
-## Background
-
-This example uses default parameters that were created for use in CBM-CFS3. Few of these parameters have source references. The ones who do are outline in the [Operational-scale Carbon Budget Model of the Canadian Forest Sector (CBM-CFS3) version 1.2: user’s guide](https://osdp-psdo.canada.ca/dp/en/search/metadata/NRCAN-CFS-1-7570539d-a457-43ef-9215-584ad612f409). [CBM_defaults](https://github.com/PredictiveEcology/CBM_defaults.git) brings the parameters to an R-environment, for easy user-access and modifications.
 
 ## Usage
 This module can run independently by running the global script below. Run independently, it provides transparent access to default parameters for all managed forests of Canada for [spadesCBM](https://github.com/PredictiveEcology/spadesCBM.git) simulations. 
@@ -78,3 +79,9 @@ out <- SpaDES.project::setupProject(
 
 outDefaults <- SpaDES.core::simInitAndSpades2(out)
 ```
+
+## Links to other modules
+
+- [CBM_dataPrep_SK](https://github.com/PredictiveEcology/CBM_dataPrep_SK.git)
+- [CBM_vol2biomass](https://github.com/PredictiveEcology/CBM_vol2biomass)
+- [CBM_core](https://github.com/PredictiveEcology/CBM_core)
