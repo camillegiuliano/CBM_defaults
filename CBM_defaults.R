@@ -160,6 +160,12 @@ sim$species_tr <- species_tr[locale_id <= 1,]
                         fun = fread)
   sim$pooldef <- as.character(pooldef$V1)
 
+  #extract species.csv
+  CBMspeciesURL <- "https://raw.githubusercontent.com/cat-cfs/libcbm_py/refs/heads/main/libcbm/resources/cbm_exn/species.csv"
+  sim$CBMspecies <- prepInputs(url = CBMspeciesURL,
+                           targetFile = "species.csv",
+                           destinationPath = inputPath(sim),
+                           fun = fread)
   # ! ----- STOP EDITING ----- ! #
 
   return(invisible(sim))
