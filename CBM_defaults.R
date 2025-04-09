@@ -157,7 +157,7 @@ sim$species_tr <- species_tr[locale_id <= 1,]
   pooldef <- prepInputs(url = pooldefURL,
                         targetFile = "pools.json",
                         destinationPath = inputPath(sim),
-                        fun = fread)
+                        fun = suppressWarnings(data.table::fread(targetFile)))
   sim$pooldef <- as.character(pooldef$V1)
 
   #extract species.csv
