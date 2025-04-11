@@ -112,13 +112,6 @@ Init <- function(sim) {
   # [47] "vol_to_bio_factor"                    "vol_to_bio_forest_type"
   # [49] "vol_to_bio_genus"                     "vol_to_bio_species"
 
-
-#extract species tables
-  # this table has species_id, locale_id, name
-species_tr <- as.data.table(dbGetQuery(archiveIndex, "SELECT * FROM species_tr"))
-#keep english only
-sim$species_tr <- species_tr[locale_id <= 1,]
-
   # This table, matrices6, has all the names associated with
   # disturbance_type_id. disturbance_type_id, along with spatial_unit_id and a
   # sw_hw flag is how libcbm connects (internally) to the proportions. In the
