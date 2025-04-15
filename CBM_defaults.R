@@ -47,7 +47,7 @@ defineModule(sim, list(
       desc = "URL for spuLocator")
   ),
   outputObjects = bindrows(
-    createsOutput(objectName = "species_tr",        objectClass = "data.table",
+    createsOutput(objectName = "CBMspecies",        objectClass = "data.table",
                   desc = "Species table with names and associated species id"),
     createsOutput(objectName = "disturbanceMatrix", objectClass = "data.table",
                   desc = "Disturbance table with disturbance names associated with disturbance_matrix_id, disturbance_type_id"),
